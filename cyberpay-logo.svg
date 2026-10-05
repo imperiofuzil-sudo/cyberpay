@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 180" role="img" aria-labelledby="title desc">
+  <title id="title">CyberPay</title>
+  <desc id="desc">Logo CyberPay com lettering metalizado e destaque ciano</desc>
+  <defs>
+    <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".52" stop-color="#a8a8b4"/>
+      <stop offset="1" stop-color="#f7f7fb"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <text x="24" y="99" fill="url(#metal)" stroke="#070b14" stroke-width="8" paint-order="stroke" font-family="Arial Black, Arial, sans-serif" font-size="91" font-weight="900" letter-spacing="-5">CYBER</text>
+  <text x="176" y="160" fill="#14d9ff" stroke="#071322" stroke-width="5" paint-order="stroke" filter="url(#glow)" font-family="Segoe Script, Brush Script MT, cursive" font-size="73" font-style="italic" font-weight="700">Pay</text>
+</svg>

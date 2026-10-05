@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 160" role="img" aria-labelledby="title desc">
+  <title id="title">CyberPay</title>
+  <desc id="desc">Logo futurista CyberPay com símbolo modular e lettering tecnológico.</desc>
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#00eaff"/><stop offset="1" stop-color="#7c4dff"/></linearGradient>
+    <linearGradient id="word" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#f2f7ff"/><stop offset=".58" stop-color="#fff"/><stop offset="1" stop-color="#bdb2ff"/></linearGradient>
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <g transform="translate(14 14)" filter="url(#softGlow)">
+    <path d="M91 4C43 4 4 43 4 91s39 87 87 87c31 0 59-16 74-41l-29-18c-9 15-26 25-45 25-29 0-53-24-53-53s24-53 53-53c19 0 36 10 45 25l29-18C150 20 122 4 91 4Z" fill="none" stroke="url(#accent)" stroke-width="16" stroke-linecap="round"/>
+    <path d="M105 91h66M145 66l27 25-27 25" fill="none" stroke="#00eaff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="174" cy="91" r="7" fill="#fff"/>
+  </g>
+  <text x="215" y="105" fill="url(#word)" font-family="Arial, Helvetica, sans-serif" font-size="76" font-weight="800" letter-spacing="-3">Cyber</text>
+  <text x="471" y="105" fill="#00eaff" font-family="Arial, Helvetica, sans-serif" font-size="76" font-weight="800" letter-spacing="-3">Pay</text>
+  <path d="M218 124h390" stroke="url(#accent)" stroke-width="3" stroke-linecap="round" opacity=".75"/>
+</svg>

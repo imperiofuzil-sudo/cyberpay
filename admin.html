@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberPay — Console Administrativo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="cyberpay-theme.css">
+    <style>
+        :root {
+            --bg: #09070d;
+            --side: rgba(18, 13, 25, 0.96);
+            --card: rgba(25, 19, 34, 0.96);
+            --card-2: rgba(33, 24, 44, 0.96);
+            --line: rgba(166, 142, 197, 0.18);
+            --text: #f8f3fc;
+            --muted: #b8a9c6;
+            --purple: #8b5cf6;
+            --pink: #ff5bbd;
+            --green: #26d07c;
+            --orange: #f0b25f;
+            --red: #ff6d79;
+            --cyan: #79d8ff;
+            --shadow: 0 18px 40px rgba(0,0,0,.35);
+        }
+        html { scroll-behavior: smooth; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100vh;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top right, rgba(139,92,246,0.12), transparent 26%),
+                radial-gradient(circle at bottom left, rgba(255,91,189,0.08), transparent 24%),
+                linear-gradient(180deg, var(--bg) 0%, #0d0912 100%);
+            font-family: 'DM Sans', sans-serif;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,.015), transparent 44%);
+            pointer-events: none;
+        }
+        button, input, select, textarea { font: inherit; }
+        button { cursor: pointer; }
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(177, 157, 198, 0.35); border-radius: 999px; }
+        ::-webkit-scrollbar-track { background: rgba(11, 9, 15, 0.8); }
+        .shell { display: flex; min-height: 100vh; }
+        
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px; flex-shrink: 0; min-height: 100vh; padding: 26px 18px;
+            background: rgba(18, 13, 25, 0.9); border-right: 1px solid rgba(255,255,255,0.05); position: sticky;
+            top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; backdrop-filter: blur(12px);
+            box-shadow: 18px 0 38px rgba(0,0,0,0.16);
+        }
+        .brand { display: flex; align-items: center; gap: 10px; padding: 0 10px 32px; }
+        .gateway-logo { display: block; width: 124px; height: auto; }
+        .brand-badge {
+            background: rgba(136,76,255,.2); color: var(--purple); font-size: .62rem;
+            font-weight: 800; padding: 3px 8px; border-radius: 6px; letter-spacing: 1px;
+            border: 1px solid rgba(136,76,255,.35);
+        }
+        .overline { color: #79698a; font-size: .64rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 0 10px 8px; }
+        .nav { display: grid; gap: 4px; }
+        .nav button {
+            display: flex; align-items: center; gap: 11px; width: 100%; padding: 11px 12px;
+            border: 1px solid transparent; border-radius: 12px; color: #aa9db6; background: transparent;
+            text-align: left; font-size: .83rem; transition: .2s ease;
+        }
+        .nav button:hover, .nav button.active {
+            color: #fff;
+            background: linear-gradient(90deg, rgba(139,92,246,0.18), rgba(255,91,189,0.08));
+            border-color: rgba(255,255,255,0.06);
+        }
+        .nav button.active b { color: #ef8bc5; }
+        .nav b { display: inline-grid; place-items: center; width: 20px; color: #887a95; font-size: 1rem; font-weight: normal; }
+        .nav-separator { height: 1px; margin: 16px 8px 12px; background: var(--line); }
+        
+        .sidebar-bottom { margin-top: auto; padding-top: 20px; border-top: 1px solid #23182f; }
+        .admin-profile { display: flex; align-items: center; gap: 10px; padding: 0 8px; }
+        .admin-avatar {
+            width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center;
+            background: linear-gradient(135deg, var(--purple), var(--pink)); color: #fff;
+            font-weight: 800; font-size: .8rem;
+        }
+        .admin-info { min-width: 0; flex: 1; }
+        .admin-info strong, .admin-info small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .admin-info strong { font-size: .8rem; color: #fff; }
+        .admin-info small { color: var(--muted); font-size: .68rem; margin-top: 2px; }
+        .logout-btn { border: 0; background: transparent; color: #776981; font-size: 1.1rem; padding: 6px; }
+        .logout-btn:hover { color: var(--red); }
+
+        /* MAIN CONTENT */
+        .main { flex: 1; min-width: 0; }
+        .topbar {
+            display: flex; align-items: center; justify-content: space-between;
+            min-height: 74px; padding: 16px 38px; border-bottom: 1px solid var(--line);
+            background: rgba(16, 11, 22, 0.84); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 10;
+        }
+        .crumb { color: var(--muted); font-size: .8rem; }
+        .crumb strong { color: #fff; font-weight: 600; }
+        .top-actions { display: flex; align-items: center; gap: 14px; }
+        .live-tag {
+            color: var(--green); background: #123227; border: 1px solid #245f47;
+            border-radius: 18px; padding: 6px 12px; font-size: .7rem; font-weight: 700;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .live-tag i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+        
+        .content { max-width: 1480px; margin: auto; padding: 38px 38px 60px; }
+        .view { display: none; animation: rise .25s ease; }
+        .view.active { display: block; }
+        @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+        .heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 26px; }
+        .heading > div { position: relative; padding-left: 14px; }
+        .heading > div::before { content: ''; position: absolute; left: 0; top: 2px; bottom: 2px; width: 3px; border-radius: 4px; background: linear-gradient(180deg, var(--cyan), var(--pink)); }
+        .eyebrow { color: #d765b0; font-size: .68rem; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; margin-bottom: 6px; }
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+        h1 { font-size: clamp(1.6rem, 2.5vw, 2.1rem); letter-spacing: -.5px; }
+        h2 { font-size: 1.05rem; }
+        h3 { font-size: .9rem; }
+        .sub { color: var(--muted); font-size: .82rem; margin-top: 6px; }
+
+        .primary, .ghost, .danger-btn {
+            border-radius: 11px; padding: 11px 16px; font-size: .78rem; font-weight: 700;
+            display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+            transition: .2s ease; border: 0;
+        }
+        .primary { color: #fff; background: linear-gradient(135deg, var(--purple), var(--pink)); box-shadow: 0 10px 26px rgba(139,92,246,.22); }
+        .primary:hover { background: linear-gradient(135deg, #7749eb, #ef4ca1); transform: translateY(-1px); }
+        .ghost { color: var(--text); border: 1px solid rgba(166,142,197,0.2); background: rgba(33,24,44,0.9); }
+        .ghost:hover { border-color: rgba(170,122,255,0.52); background: #2a2038; }
+        .danger-btn { color: #fff; background: linear-gradient(135deg, #ef4444, #991b1b); }
+        .danger-btn:hover { background: linear-gradient(135deg, #dc2626, #7f1d1d); }
+
+        /* STATS GRID */
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 22px; }
+        .stat, .panel {
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: linear-gradient(180deg, rgba(25,19,34,0.96) 0%, rgba(18,13,24,0.96) 100%);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(8px);
+        }
+        .stat { padding: 20px; min-height: 125px; position: relative; overflow: hidden; }
+        .stat { background: radial-gradient(circle at 100% 0, rgba(139,92,246,.1), transparent 40%), linear-gradient(155deg, rgba(29,22,39,.98), rgba(17,13,23,.96)); transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+        .stat:hover { transform: translateY(-2px); border-color: rgba(214,111,175,.38); box-shadow: 0 22px 48px rgba(0,0,0,.38); }
+        .stat-top { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: .74rem; }
+        .stat-icon { color: #f2a9d1; font-size: 1.1rem; }
+        .stat-value { margin-top: 14px; font: 700 1.65rem 'Space Grotesk'; color: #fff; }
+        .stat-meta { margin-top: 6px; color: var(--green); font-size: .7rem; font-weight: 600; }
+
+        .panel { padding: 22px; margin-bottom: 20px; }
+        .panel { transition: border-color .2s ease, box-shadow .2s ease; }
+        .panel:hover { border-color: rgba(166,142,197,.3); }
+        .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+        .panel-heading span { color: var(--muted); font-size: .72rem; }
+
+        /* TABLES */
+        .table-wrap { overflow-x: auto; }
+        .table { width: 100%; border-collapse: collapse; min-width: 650px; }
+        .table th { padding: 0 12px 14px; color: #8a7b97; text-align: left; font-size: .66rem; text-transform: uppercase; letter-spacing: .8px; font-weight: 700; }
+        .table td { border-top: 1px solid var(--line); padding: 14px 12px; font-size: .76rem; vertical-align: middle; }
+        .table td strong { color: #fff; font-weight: 600; }
+
+        .status { display: inline-block; border-radius: 20px; padding: 4px 10px; font-size: .64rem; font-weight: 700; }
+        .status.ok { color: var(--green); background: #123b2d; border: 1px solid #1f6b4d; }
+        .status.wait { color: var(--orange); background: #3d2d13; border: 1px solid #6b5020; }
+        .status.block { color: var(--red); background: #401b27; border: 1px solid #6d2a3c; }
+        .status.info { color: #c89cff; background: #31204d; border: 1px solid #5a3b8c; }
+
+        .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        .actions button { padding: 6px 10px; font-size: .68rem; border-radius: 6px; }
+
+        /* FORMS & INPUTS */
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 16px; }
+        .form-field { display: grid; gap: 6px; }
+        .form-field.full { grid-column: 1 / -1; }
+        .form-field label { color: #b9aac2; font-size: .72rem; font-weight: 700; }
+        .form-control {
+            width: 100%; border: 1px solid var(--line); border-radius: 9px; outline: none;
+            color: var(--text); background: #21182c; padding: 12px 14px; font-size: .78rem;
+            transition: border-color .2s;
+        }
+        .form-control:focus { border-color: var(--purple); box-shadow: 0 0 12px rgba(136,76,255,.2); }
+        textarea.form-control { resize: vertical; min-height: 90px; }
+
+        .filter-row { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; align-items: center; }
+        .filter-row .form-control { width: auto; min-width: 200px; }
+
+        /* MODAL */
+        .modal-backdrop {
+            display: none; position: fixed; inset: 0; z-index: 50;
+            align-items: center; justify-content: center; padding: 20px;
+            background: rgba(5,3,8,.8); backdrop-filter: blur(8px);
+        }
+        .modal-backdrop.open { display: flex; }
+        .modal {
+            width: min(520px, 100%); padding: 28px; border: 1px solid #55366d;
+            border-radius: 16px; background: #1a1324; box-shadow: 0 25px 80px #000;
+            max-height: 90vh; overflow-y: auto;
+        }
+        .modal h2 { margin-bottom: 8px; font-size: 1.25rem; }
+        .modal p { color: var(--muted); font-size: .78rem; line-height: 1.5; margin-bottom: 20px; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+        /* TOAST */
+        .toast {
+            position: fixed; right: 24px; bottom: 24px; z-index: 60; padding: 13px 18px;
+            color: #fff; border: 1px solid #634070; border-radius: 10px; background: #21142d;
+            font-size: .78rem; font-weight: 600; opacity: 0; transform: translateY(15px);
+            pointer-events: none; transition: .25s; box-shadow: 0 10px 30px rgba(0,0,0,.5);
+        }
+        .toast.show { opacity: 1; transform: none; }
+
+        @media (max-width: 1050px) {
+            .stats { grid-template-columns: repeat(2, 1fr); }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; padding: 20px 8px; }
+            .brand, .overline, .nav button span, .admin-info { display: none; }
+            .nav button { justify-content: center; padding: 13px 0; }
+            .topbar { padding: 14px 20px; }
+            .content { padding: 20px 16px; }
+            .stats { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="brand">
+                <img class="gateway-logo" src="cyberpay-brand.svg" alt="CyberPay">
+                <span class="brand-badge">ADMIN</span>
+            </div>
+            
+            <div class="overline">Gestão Geral</div>
+            <nav class="nav" aria-label="Menu administrativo">
+                <button class="active" data-view="overview"><b>▦</b><span>Visão geral</span></button>
+                <button data-view="users"><b>👥</b><span>Usuários & Saldos</span></button>
+                <button data-view="withdrawals"><b>↗</b><span>Saques & Aprovações</span></button>
+                <button data-view="settings"><b>⚙</b><span>Regras de Saque</span></button>
+                
+                <div class="nav-separator"></div>
+                <div class="overline">Ecossistema</div>
+                <button data-view="plans"><b>◆</b><span>Planos & Taxas</span></button>
+                <button data-view="notices"><b>!</b><span>Mural de Avisos</span></button>
+                <button data-view="partners"><b>∞</b><span>Parcerias</span></button>
+                <button data-view="audit"><b>🛡</b><span>Trilha de Auditoria</span></button>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <div class="admin-profile">
+                    <div class="admin-avatar">AD</div>
+                    <div class="admin-info">
+                        <strong>Super Admin</strong>
+                        <small id="adminEmail">hfsx67325@gmail.com</small>
+                    </div>
+                    <button class="logout-btn" id="logoutBtn" title="Encerrar sessão">↪</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="main">
+            <header class="topbar">
+                <div class="crumb">Console Administrativo / <strong id="crumbTitle">Visão geral</strong></div>
+                <div class="top-actions">
+                    <div class="live-tag"><i></i> Administração da plataforma</div>
+                    <button class="ghost" onclick="refreshAdminData()">🔄 Atualizar dados</button>
+                </div>
+            </header>
+
+            <div class="content">
+                <!-- VIEW 1: OVERVIEW -->
+                <section class="view active" id="overview">
+                    <div class="heading">
+                        <div>
+                            <div class="eyebrow">Monitoramento em Tempo Real</div>
+                            <h1>Painel de Controle CyberPay</h1>
+                            <p class="sub">Visão consolidada de todos os clientes, transações e saldo sob custódia da gateway.</p>
+                        </div>
+                        <div style="display:flex;gap:10px">
+                            <button class="primary" data-view-jump="withdrawals">↗ Ver saques pendentes</button>
+                            <button class="ghost" data-view-jump="users">👥 Gerenciar clientes</button>
+                        </div>
+                    </div>
+
+                    <div class="stats">
+                        <article class="stat">
+                            <div class="stat-top"><span>Saldo total clientes</span><span class="stat-icon">💰</span></div>
+                            <div class="stat-value" id="statTotalBalance">R$ 0,00</div>
+                            <div class="stat-meta">Custódia ativa na gateway</div>
+                        </article>
+                        <article class="stat">
+                            <div class="stat-top"><span>Total de Clientes</span><span class="stat-icon">👥</span></div>
+                            <div class="stat-value" id="statTotalUsers">0</div>
+                            <div class="stat-meta" id="statActiveUsers">0 contas ativas</div>
+                        </article>
+                        <article class="stat">
+                            <div class="stat-top"><span>Saques Pendentes</span><span class="stat-icon">⏳</span></div>
+                            <div class="stat-value" id="statPendingWithdrawals">0</div>
+                            <div class="stat-meta" id="statPendingAmount" style="color:var(--orange)">R$ 0,00 a liberar</div>
+                        </article>
+                        <article class="stat">
+                            <div class="stat-top"><span>Modo de Liquidação</span><span class="stat-icon">⚡</span></div>
+                            <div class="stat-value" id="statPayoutMode" style="font-size:1.35rem">MANUAL</div>
+                            <div class="stat-meta" id="statPayoutLimit">Limite auto: R$ 2.000</div>
+                        </article>
+                    </div>
+
+                    <article class="panel">
+                        <div class="panel-heading">
+                            <h2>Saques aguardando análise de segurança</h2>
+                            <button class="ghost" data-view-jump="withdrawals">Ver todos os saques →</button>
+                        </div>
+                        <div class="table-wrap">
+                            <table class="table">
+                                <thead>
+                                    <tr><th>ID</th><th>Cliente</th><th>Valor</th><th>Destino</th><th>Risco</th><th>Ações Rápidas</th></tr>
+                                </thead>
+                                <tbody id="overviewWithdrawalsTable"></tbody>
+                            </table>
+                        </div>
+                    </article>
+
+                    <article class="panel" style="margin-top:22px">
+                        <div class="panel-heading">
+                            <h2>Credenciais da API</h2>
+                            <div style="display:flex;gap:8px;align-items:center">
+                                <span id="gatewayConnectionStatus" style="color:var(--muted);font-size:.72rem">Não testada</span>
+                                <button class="ghost" type="button" id="testGatewayConnectionBtn">Testar conexão</button>
+                                <button class="ghost" type="button" id="copyApiCredentialsBtn">Copiar payload</button>
+                            </div>
+                        </div>
+                        <div id="gatewayCredentialsList" style="display:grid;gap:12px"></div>
+                    </article>
+                </section>
+
+                <!-- VIEW 2: USERS (100% FULL CONTROL) -->
+                <section class="view" id="users">
+                    <div class="heading">
+                        <div>
+                            <div class="eyebrow">Gestão de Clientes</div>
+                            <h1>Controle Total de Usuários & Saldos</h1>
+                            <p class="sub">Altere saldos, redefina senhas, mude planos ou bloqueie contas diretamente pelo painel.</p>
+                        </div>
+                    </div>
+
+                    <div class="filter-row">
+                        <input type="text" class="form-control" id="userSearchInput" placeholder="🔍 Buscar por nome ou e-mail..." oninput="filterUsers()">
+                        <select class="form-control" id="userStatusFilter" onchange="filterUsers()">
+                            <option value="all">Todos os status</option>
+                            <option value="active">Ativos</option>
+                            <option value="blocked">Bloqueados</option>
+                            <option value="pending">Em análise</option>
+                        </select>
+                    </div>
+
+                    <article class="panel">
+                        <div class="table-wrap">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>E-mail</th>
+                                        <th>Telefone</th>
+                                        <th>Plano</th>
+                                        <th>Saldo Atual</th>
+                                        <th>Status</th>
+                                        <th>Ações de Controle</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody"></tbody>
+                            </table>
+                        </div>
+                    </article>
+                </section>
+
+                <!-- VIEW 3: WITHDRAWALS (SAQUES) -->
+                <section class="view" id="withdrawals">
+                    <div class="heading">
+                        <div>
+                            <div class="eyebrow">Tesouraria & Pagamentos</div>
+                            <h1>Aprovação e Controle de Saques</h1>
+                            <p class="sub">Aprove, rejeite com justificativa ou bloqueie solicitações de saque bancário e cripto (USDT BEP20).</p>
+                        </div>
+                        <button class="ghost" data-view-jump="settings">⚙ Regras de liquidação</button>
+                    </div>
+
+                    <article class="panel">
+                        <div class="table-wrap">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID Saque</th>
+                                        <th>Cliente</th>
+                                        <th>Valor Solicitado</th>
+                                        <th>Destino / Chave</th>
+                                        <th>Nível de Risco</th>
+                                        <th>Status</th>
+                                        <th>Data</th>
+                                        <th>Ações Imediatas</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="withdrawalsTableBody"></tbody>
+                            </table>
+                        </div>
+                    </article>
+                </section>
+
+                <!-- VIEW 4: SETTINGS (REGRAS OPERACIONAIS) -->
+                <section class="view" id="settings">
+                    <div class="heading">
+                        <div>
+                            <div class="eyebrow">Motor de Liquidação</div>
+                            <h1>Regras Operacionais e Payout</h1>
+                            <p class="sub">Configure como a CyberPay processa os pagamentos para os clientes.</p>
+                        </div>
+                    </div>
+
+                    <article class="panel" style="max-width:700px">
+                        <div class="panel-heading">
+                            <h2>Configurações de Saque da Gateway</h2>
+                        </div>
+                        <form id="settingsForm" onsubmit="saveSettings(event)">
+                            <div class="form-group" style="margin-bottom:20px">
+                                <label style="display:block;margin-bottom:8px;font-weight:700;font-size:.78rem">Modo de Liquidação de Saques</label>
+                                <select class="form-control" id="payoutModeSelect">
+                                    <option value="manual">Manual — Todos os saques passam por aprovação da equipe</option>
+                                    <option value="automatic">Automático — Saques até o limite são liberados na hora</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom:24px">
+                                <label style="display:block;margin-bottom:8px;font-weight:700;font-size:.78rem">Limite para Saque Automático (R$)</label>
+                                <input type="number" class="form-control" id="automaticLimitInput" placeholder="2000" min="0" step="100">
+                                <small style="display:block;color:var(--muted);margin-top:6px;font-size:.7rem">Saques acima desse valor sempre exigirão aprovação manual.</small>
+                            </div>
+                            <button type="submit" class="primary">Salvar Regras Operacionais</button>
+                        </form>
+                    </article>
+                </section>
+
+                <!-- VIEW 5: PLANS & FEES -->
+                <section class="view" id="plans">
+                    <div class="heading">
+                        <div>
+                            <div class="eyebrow">Precificação & Planos</div>
+                            <h1>Taxas e Planos da Gateway</h1>
+                            <p class="sub">Defina as taxas de transação cobradas de cada perfil de cliente.</p>
+                        </div>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:20px;margin-bottom:26px" id="plansContainer"></div>
+
+                    <article class="panel" style="max-width:700px">
+                        <div class="panel-heading"><h2>Configurar ou Criar Plano</h2></div>
+                        <form id="planForm" onsubmit="savePlan(event)">
+                            <div class="form-grid">
+                                <div class="form-field">
+                                    <label>Nome do Plano</label>
+                                    <input type="text" class="form-control" id="planName" placeholder="Ex: Vendedor Pro, Ghost, Enterprise" required>
+                                </div>
+                                <div class="form-field">
+                                    <label>Taxa Percentual (%)</label>
+                                    <input type="number" step="0.1" class="form-control" id="planPercent" placeholder="2.5" required>
+                                </div>
+                                <div class="form-field">
+                                    <label>Taxa Fixa (R$)</label>
+                                    <input type="number" step="0.05" class="form-control" id="planFixed" placeholder="0.75" required>
+                                </div>
+                                <div class="form-field">
+                                    <label>Taxa de Saque (R$)</label>
+                                    <input type="number" step="0.05" class="form-control" id="planWithdrawalFee" placeholder="1.75">
+                                </div>
+                                <div class="form-field">
+                                    <label>Proteção MED Inclusa?</label>
+                                    <select class="form-control" id="planMed">
+                                        <option value="true">Sim (Proteção ativa)</option>
+                                        <option value="false">Não</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="primary">Salvar Configuração de Plano</button>
+                        </form>
+                    </article>
+                </section>
+
+                <!-- VIEW 6: NOTICES (AVISOS) -->
+                <section class="view" id="notices">
+                    <div class="heading">
+                        <div>
+                            <div class="eyebrow">Comunicação Oficial</div>
+                            <h1>Publicar Avisos no Dashboard dos Clientes</h1>
+                            <p class="sub">Envie comunicados que aparecem instantaneamente para todos os usuários logados.</p>
+                        </div>
+                    </div>
+
+                    <article class="panel" style="max-width:750px">
+                        <div class="panel-heading"><h2>Novo Comunicado Oficial</h2></div>
+                        <form id="noticeForm" onsubmit="publishNotice(event)">
+                            <div class="form-field" style="margin-bottom:14px">
+                                <label>Título do Aviso</label>
+                                <input type="text" class="form-control" id="noticeTitle" placeholder="Ex: Manutenção programada Pix ou Novas taxas" required>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-field">
+                                    <label>Tipo do Comunicado</label>
+                                    <select class="form-control" id="noticeType">
+                                        <option value="Informativo">Informativo</option>
+                                        <option value="Alerta">Alerta</option>
+                                        <option value="Manutenção">Manutenção</option>
+                                    </select>
+                                </div>
+                                <div class="form-field">
+                                    <label>Público Alvo</label>
+                                    <select class="form-control" id="noticeAudience">
+                                        <option value="Todos os usuários">Todos os usuários</option>
+                                        <option value="Vendedores Pro">Vendedores Pro</option>
+                                        <option value="Enterprise">Enterprise</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-field" style="margin-bottom:16px">
+                                <label>Conteúdo da Mensagem</label>
+                                <textarea class="form-control" id="noticeText" rows="3" placeholder="Escreva a mensagem para os usuários..." required></textarea>
+                            </div>
+                            <button type="submit" class="primary">📢 Publicar Aviso no Mural</button>
+                        </form>
+                    </article>
+
+                    <article class="panel">
+                        <div class="panel-heading"><h2>Avisos Publicados Recentemente</h2></div>
+                        <div id="noticesList"></div>
+                    </article>
+                </section>
+
+                <!-- VIEW 7: PARTNERS (PARCERIAS) -->
+                <section class="view" id="partners">
+                    <div class="heading">
+                        <div>
+                            <div class="eyebrow">Ecossistema de Parceiros</div>
+                            <h1>Gerenciar Lojas & Canais de Parcerias</h1>
+                            <p class="sub">Cadastre novas lojas, ferramentas de automação e canais oficiais para os clientes.</p>
+                        </div>
+                    </div>
+
+                    <article class="panel" style="max-width:750px">
+                        <div class="panel-heading"><h2>Adicionar Novo Parceiro</h2></div>
+                        <form id="partnerForm" onsubmit="addPartner(event)">
+                            <div class="form-grid">
+                                <div class="form-field">
+                                    <label>Nome do Parceiro / Loja</label>
+                                    <input type="text" class="form-control" id="partnerName" placeholder="Ex: CyberBuy Store, Bot WhatsApp..." required>
+                                </div>
+                                <div class="form-field">
+                                    <label>Tipo de Parceria</label>
+                                    <select class="form-control" id="partnerType">
+                                        <option value="Loja Parceira">Loja Parceira</option>
+                                        <option value="Automação WhatsApp">Automação WhatsApp</option>
+                                        <option value="Estoque & Bins">Estoque & Bins</option>
+                                        <option value="Integração API">Integração API</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-field" style="margin-bottom:14px">
+                                <label>Descrição Curta</label>
+                                <input type="text" class="form-control" id="partnerDescription" placeholder="O que este parceiro oferece..." required>
+                            </div>
+                            <div class="form-field" style="margin-bottom:18px">
+                                <label>Link de Destino</label>
+                                <input type="url" class="form-control" id="partnerLink" placeholder="https://..." required>
+                            </div>
+                            <button type="submit" class="primary">＋ Cadastrar Parceria</button>
+                        </form>
+                    </article>
+
+                    <article class="panel">
+                        <div class="panel-heading"><h2>Parcerias Registradas</h2></div>
+                        <div id="partnersList"></div>
+                    </article>
+                </section>
+
+                <!-- VIEW 8: AUDIT (TRILHA DE AUDITORIA) -->
+                <section class="view" id="audit">
+                    <div class="heading">
+                        <div>
+                            <div class="eyebrow">Segurança & Rastreabilidade</div>
+                            <h1>Trilha Completa de Auditoria</h1>
+                            <p class="sub">Registro cronológico de todas as ações de clientes e administradores.</p>
+                        </div>
+                        <button class="ghost" onclick="loadAuditLogs()">🔄 Recarregar logs</button>
+                    </div>
+
+                    <article class="panel">
+                        <div class="table-wrap">
+                            <table class="table">
+                                <thead>
+                                    <tr><th>Data/Hora</th><th>Ator</th><th>Ação Realizada</th><th>ID Registro</th></tr>
+                                </thead>
+                                <tbody id="auditTableBody"></tbody>
+                            </table>
+                        </div>
+                    </article>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL EDITAR USUÁRIO (100% CONTROLE) -->
+    <div class="modal-backdrop" id="editUserModal">
+        <div class="modal">
+            <h2>Editar Cliente (Controle Total)</h2>
+            <p>Altere saldo, status, plano ou redefina a senha deste usuário diretamente.</p>
+            <form id="editUserForm" onsubmit="saveUserChanges(event)">
+                <input type="hidden" id="editUserId">
+                <div class="form-field" style="margin-bottom:12px">
+                    <label>Nome do Cliente</label>
+                    <input type="text" class="form-control" id="editUserName" required>
+                </div>
+                <div class="form-field" style="margin-bottom:12px">
+                    <label>E-mail</label>
+                    <input type="email" class="form-control" id="editUserEmail" required>
+                </div>
+                <div class="form-field" style="margin-bottom:12px">
+                    <label>Telefone / WhatsApp</label>
+                    <input type="text" class="form-control" id="editUserPhone">
+                </div>
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label>Plano</label>
+                        <select class="form-control" id="editUserPlan">
+                            <option value="Vendedor Pro">Vendedor Pro</option>
+                            <option value="Ghost">Ghost</option>
+                            <option value="Enterprise">Enterprise</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label>Status da Conta</label>
+                        <select class="form-control" id="editUserStatus">
+                            <option value="active">Ativo (Normal)</option>
+                            <option value="blocked">Bloqueado</option>
+                            <option value="pending">Em Análise</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-field" style="margin-bottom:14px">
+                    <label>Saldo Disponível (R$)</label>
+                    <input type="number" step="0.01" class="form-control" id="editUserBalance" required>
+                </div>
+                <div class="form-field" style="margin-bottom:18px">
+                    <label>Redefinir Nova Senha (Opcional)</label>
+                    <input type="password" class="form-control" id="editUserPassword" placeholder="Deixe em branco para manter a atual">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="ghost" onclick="closeUserModal()">Cancelar</button>
+                    <button type="submit" class="primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script src="client-security.js"></script>
+    <script>
+        const { escapeHTML, safeHttpUrl, parseJSON } = window.CyberPaySecurity;
+        const currency = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+        let adminData = { users: [], withdrawals: [], plans: {}, notices: [], partners: [], settings: {} };
+
+        document.addEventListener('click', event => {
+            const button = event.target.closest('[data-user-action], [data-withdrawal-action], [data-plan-action]');
+            if (!button) return;
+            if (button.dataset.userAction === 'edit') openEditUserModal(button.dataset.userId);
+            if (button.dataset.userAction === 'toggle') toggleUserStatus(button.dataset.userId, button.dataset.userStatus);
+            if (button.dataset.userAction === 'delete') deleteUser(button.dataset.userId, button.dataset.userName);
+            if (button.dataset.withdrawalAction) decideWithdrawal(button.dataset.withdrawalId, button.dataset.withdrawalAction);
+            if (button.dataset.planAction === 'edit') fillPlanForm(button.dataset.planName, Number(button.dataset.planPercent), Number(button.dataset.planFixed), button.dataset.planMed === 'true', Number(button.dataset.planWithdrawalFee));
+            if (button.dataset.planAction === 'delete') deletePlan(button.dataset.planName);
+        });
+
+        function getAuthToken() {
+            const session = parseJSON(localStorage.getItem('cyberpaySession'));
+            const token = sessionStorage.getItem('cyberpayAdminToken');
+            if (!token || session?.role !== 'admin') {
+                window.location.replace('loginadmin');
+                return '';
+            }
+            return token;
+        }
+
+        async function adminFetch(path, options = {}) {
+            const token = getAuthToken();
+            if (!token) throw new Error('Sessão administrativa ausente');
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                ...(options.headers || {})
+            };
+            const response = await fetch(path, { ...options, headers });
+            if (response.status === 403) {
+                sessionStorage.removeItem('cyberpayAdminToken');
+                localStorage.removeItem('cyberpaySession');
+                window.location.replace('loginadmin');
+            }
+            return response;
+        }
+
+        // VIEW NAVIGATION
+        const views = document.querySelectorAll('.view');
+        const navButtons = document.querySelectorAll('.nav button');
+        function activateView(viewId) {
+            views.forEach(v => v.classList.toggle('active', v.id === viewId));
+            navButtons.forEach(b => b.classList.toggle('active', b.dataset.view === viewId));
+            const activeBtn = document.querySelector(`.nav button[data-view="${viewId}"]`);
+            if (activeBtn) {
+                document.getElementById('crumbTitle').textContent = activeBtn.querySelector('span').textContent;
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        navButtons.forEach(b => b.addEventListener('click', () => activateView(b.dataset.view)));
+        document.querySelectorAll('[data-view-jump]').forEach(b => b.addEventListener('click', () => activateView(b.dataset.viewJump)));
+
+        // TOAST
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // LOAD DATA
+        async function refreshAdminData() {
+            try {
+                const res = await adminFetch('/api/admin/overview');
+                if (!res.ok) throw new Error('Falha ao autenticar admin');
+                adminData = await res.json();
+                renderOverview();
+                renderUsersTable();
+                renderWithdrawalsTable();
+                renderSettings();
+                renderPlans();
+                renderNotices();
+                renderPartners();
+                showToast('Dados da gateway sincronizados com sucesso.');
+            } catch (err) {
+                console.error(err);
+                showToast('Erro ao sincronizar dados. Verifique a sessão admin.');
+            }
+        }
+
+        // RENDER OVERVIEW
+        function renderOverview() {
+            const users = adminData.users || [];
+            const withdrawals = adminData.withdrawals || [];
+            const settings = adminData.settings || {};
+
+            const totalBalance = users.reduce((acc, u) => acc + (Number(u.balance) || 0), 0);
+            const activeUsers = users.filter(u => u.status === 'active').length;
+            const pendingWithdrawals = withdrawals.filter(w => w.status === 'pending');
+            const pendingAmount = pendingWithdrawals.reduce((acc, w) => acc + (Number(w.value) || 0), 0);
+
+            document.getElementById('statTotalBalance').textContent = currency.format(totalBalance);
+            document.getElementById('statTotalUsers').textContent = users.length;
+            document.getElementById('statActiveUsers').textContent = `${activeUsers} contas ativas`;
+            document.getElementById('statPendingWithdrawals').textContent = pendingWithdrawals.length;
+            document.getElementById('statPendingAmount').textContent = `${currency.format(pendingAmount)} a liberar`;
+            document.getElementById('statPayoutMode').textContent = (settings.payoutMode || 'MANUAL').toUpperCase();
+            document.getElementById('statPayoutLimit').textContent = `Limite auto: ${currency.format(settings.automaticLimit || 2000)}`;
+
+            const credentialsList = document.getElementById('gatewayCredentialsList');
+            const creds = adminData.gatewayCredentials || {};
+            const payload = {
+                baseUrl: creds.baseUrl || 'https://vexapay.site/api/v1',
+                clientId: creds.clientId || 'não configurado',
+                clientSecretConfigured: Boolean(creds.clientSecretConfigured),
+                authMode: creds.authMode || 'Bearer + X-Client-Id'
+            };
+            credentialsList.innerHTML = `
+                <div style="padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#181321;display:grid;gap:8px">
+                    <small style="color:var(--muted);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase">Base URL</small>
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+                        <code style="color:#fff;word-break:break-all;">${escapeHTML(payload.baseUrl)}</code>
+                        <button class="ghost" type="button" data-copy="${escapeHTML(payload.baseUrl)}">Copiar</button>
+                    </div>
+                </div>
+                <div style="padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#181321;display:grid;gap:8px">
+                    <small style="color:var(--muted);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase">Client ID</small>
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+                        <code style="color:#fff;word-break:break-all;">${escapeHTML(payload.clientId)}</code>
+                        <button class="ghost" type="button" data-copy="${escapeHTML(payload.clientId)}">Copiar</button>
+                    </div>
+                </div>
+                <div style="padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#181321;display:grid;gap:8px">
+                    <small style="color:var(--muted);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase">Client Secret</small>
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+                        <code style="color:#fff;word-break:break-all;">${payload.clientSecretConfigured ? 'Configurado e mantido no servidor' : 'Não configurado'}</code>
+                    </div>
+                </div>
+                <div style="padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#181321;display:grid;gap:8px">
+                    <small style="color:var(--muted);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase">Autenticação</small>
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+                        <code style="color:#fff;word-break:break-all;">${escapeHTML(payload.authMode)}</code>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('copyApiCredentialsBtn').onclick = async () => {
+                const text = `Base URL: ${payload.baseUrl}\nClient ID: ${payload.clientId}\nAutenticação: ${payload.authMode}`;
+                try {
+                    await navigator.clipboard.writeText(text);
+                    showToast('Credenciais da API copiadas.');
+                } catch {
+                    showToast('Não foi possível copiar as credenciais.');
+                }
+            };
+
+            document.getElementById('testGatewayConnectionBtn').onclick = async () => {
+                const button = document.getElementById('testGatewayConnectionBtn');
+                const status = document.getElementById('gatewayConnectionStatus');
+                button.disabled = true;
+                status.textContent = 'Testando...';
+                try {
+                    const response = await adminFetch('/api/admin/gateway/test', { method: 'POST' });
+                    const result = await response.json();
+                    status.textContent = result.ok ? 'Credenciais configuradas' : `Falha (${result.status || 'sem resposta'})`;
+                    status.style.color = result.ok ? '#55d68a' : '#ff8f8f';
+                    showToast(result.message || 'Teste concluído.');
+                } catch {
+                    status.textContent = 'Erro de rede';
+                    status.style.color = '#ff8f8f';
+                    showToast('Não foi possível testar a conexão.');
+                } finally {
+                    button.disabled = false;
+                }
+            };
+
+            credentialsList.querySelectorAll('[data-copy]').forEach(button => {
+                button.addEventListener('click', async () => {
+                    const value = button.getAttribute('data-copy');
+                    try {
+                        await navigator.clipboard.writeText(value);
+                        showToast('Valor copiado.');
+                    } catch {
+                        showToast('Falha ao copiar valor.');
+                    }
+                });
+            });
+
+            // Overview withdrawals table
+            const tbody = document.getElementById('overviewWithdrawalsTable');
+            if (pendingWithdrawals.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Nenhum saque pendente no momento. Operação em dia! ✅</td></tr>';
+            } else {
+                tbody.innerHTML = pendingWithdrawals.slice(0, 5).map(w => {
+                    const u = users.find(usr => usr.id === w.userId) || { name: 'Cliente', email: '' };
+                    return `<tr>
+                        <td><strong>${escapeHTML(w.id)}</strong></td>
+                        <td>${escapeHTML(u.name)} <small style="display:block;color:var(--muted)">${escapeHTML(u.email)}</small></td>
+                        <td><strong>${currency.format(w.value)}</strong></td>
+                        <td>${escapeHTML(w.destination)}</td>
+                        <td><span class="status ${w.risk === 'high' ? 'block' : 'info'}">${escapeHTML((w.risk || 'low').toUpperCase())}</span></td>
+                        <td>
+                            <div class="actions">
+                                <button class="primary" data-withdrawal-action="approved" data-withdrawal-id="${escapeHTML(w.id)}">✓ Aprovar</button>
+                                <button class="danger-btn" data-withdrawal-action="rejected" data-withdrawal-id="${escapeHTML(w.id)}">✕ Rejeitar</button>
+                            </div>
+                        </td>
+                    </tr>`;
+                }).join('');
+            }
+        }
+
+        // RENDER USERS (100% CONTROL)
+        function renderUsersTable(filteredList) {
+            const users = filteredList || adminData.users || [];
+            const tbody = document.getElementById('usersTableBody');
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">Nenhum usuário encontrado.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = users.map(u => {
+                const statusClass = u.status === 'active' ? 'ok' : u.status === 'blocked' ? 'block' : 'wait';
+                const statusLabel = u.status === 'active' ? 'Ativo' : u.status === 'blocked' ? 'Bloqueado' : 'Em análise';
+                return `<tr>
+                    <td><strong>${escapeHTML(u.name)}</strong></td>
+                    <td>${escapeHTML(u.email)}</td>
+                    <td>${escapeHTML(u.phone || '—')}</td>
+                    <td><span class="status info">${escapeHTML(u.plan || 'Vendedor Pro')}</span></td>
+                    <td><strong style="color:var(--cyan)">${currency.format(u.balance || 0)}</strong></td>
+                    <td><span class="status ${statusClass}">${statusLabel}</span></td>
+                    <td>
+                        <div class="actions">
+                            <button class="ghost" data-user-action="edit" data-user-id="${escapeHTML(u.id)}">⚙ Editar / Saldo</button>
+                            <button class="${u.status === 'active' ? 'danger-btn' : 'primary'}" data-user-action="toggle" data-user-id="${escapeHTML(u.id)}" data-user-status="${escapeHTML(u.status)}">
+                                ${u.status === 'active' ? 'Bloquear' : 'Desbloquear'}
+                            </button>
+                            <button class="ghost" style="color:var(--red)" data-user-action="delete" data-user-id="${escapeHTML(u.id)}" data-user-name="${escapeHTML(u.name)}">🗑</button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function filterUsers() {
+            const query = document.getElementById('userSearchInput').value.toLowerCase().trim();
+            const status = document.getElementById('userStatusFilter').value;
+            let list = adminData.users || [];
+            if (query) {
+                list = list.filter(u => (u.name || '').toLowerCase().includes(query) || (u.email || '').toLowerCase().includes(query));
+            }
+            if (status !== 'all') {
+                list = list.filter(u => u.status === status);
+            }
+            renderUsersTable(list);
+        }
+
+        // EDIT USER MODAL
+        function openEditUserModal(userId) {
+            const u = adminData.users.find(item => item.id === userId);
+            if (!u) return;
+            document.getElementById('editUserId').value = u.id;
+            document.getElementById('editUserName').value = u.name || '';
+            document.getElementById('editUserEmail').value = u.email || '';
+            document.getElementById('editUserPhone').value = u.phone || '';
+            document.getElementById('editUserPlan').value = u.plan || 'Vendedor Pro';
+            document.getElementById('editUserStatus').value = u.status || 'active';
+            document.getElementById('editUserBalance').value = Number(u.balance || 0).toFixed(2);
+            document.getElementById('editUserPassword').value = '';
+            document.getElementById('editUserModal').classList.add('open');
+        }
+
+        function closeUserModal() {
+            document.getElementById('editUserModal').classList.remove('open');
+        }
+
+        async function saveUserChanges(e) {
+            e.preventDefault();
+            const userId = document.getElementById('editUserId').value;
+            const body = {
+                name: document.getElementById('editUserName').value.trim(),
+                email: document.getElementById('editUserEmail').value.trim(),
+                phone: document.getElementById('editUserPhone').value.trim(),
+                plan: document.getElementById('editUserPlan').value,
+                status: document.getElementById('editUserStatus').value,
+                balance: Number(document.getElementById('editUserBalance').value)
+            };
+            const pass = document.getElementById('editUserPassword').value;
+            if (pass) body.password = pass;
+
+            try {
+                const res = await adminFetch(`/api/admin/users/${userId}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify(body)
+                });
+                if (!res.ok) throw new Error('Falha ao atualizar cliente');
+                closeUserModal();
+                showToast('Cliente atualizado com sucesso!');
+                refreshAdminData();
+            } catch (err) {
+                showToast('Erro ao atualizar cliente.');
+            }
+        }
+
+        async function toggleUserStatus(userId, currentStatus) {
+            const newStatus = currentStatus === 'active' ? 'blocked' : 'active';
+            try {
+                const res = await adminFetch(`/api/admin/users/${userId}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (!res.ok) throw new Error();
+                showToast(`Status alterado para ${newStatus === 'active' ? 'Ativo' : 'Bloqueado'}`);
+                refreshAdminData();
+            } catch (err) {
+                showToast('Erro ao alterar status.');
+            }
+        }
+
+        async function deleteUser(userId, userName) {
+            if (!confirm(`Tem certeza que deseja excluir permanentemente o cliente ${userName}?`)) return;
+            try {
+                const res = await adminFetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error();
+                showToast('Cliente excluído com sucesso.');
+                refreshAdminData();
+            } catch (err) {
+                showToast('Erro ao excluir cliente.');
+            }
+        }
+
+        // RENDER WITHDRAWALS
+        function renderWithdrawalsTable() {
+            const withdrawals = adminData.withdrawals || [];
+            const users = adminData.users || [];
+            const tbody = document.getElementById('withdrawalsTableBody');
+            if (withdrawals.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Nenhuma solicitação de saque registrada.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = withdrawals.map(w => {
+                const u = users.find(usr => usr.id === w.userId) || { name: 'Cliente', email: '' };
+                const statusClass = w.status === 'approved' ? 'ok' : w.status === 'blocked' ? 'block' : w.status === 'rejected' ? 'block' : 'wait';
+                const statusLabel = w.status === 'approved' ? 'Aprovado' : w.status === 'blocked' ? 'Bloqueado' : w.status === 'rejected' ? 'Rejeitado' : 'Pendente';
+                return `<tr>
+                    <td><strong>${escapeHTML(w.id)}</strong></td>
+                    <td>${escapeHTML(u.name)} <small style="display:block;color:var(--muted)">${escapeHTML(u.email)}</small></td>
+                    <td><strong style="color:#fff">${currency.format(w.value)}</strong></td>
+                    <td>${escapeHTML(w.destination)}</td>
+                    <td><span class="status ${w.risk === 'high' ? 'block' : 'info'}">${escapeHTML((w.risk || 'low').toUpperCase())}</span></td>
+                    <td><span class="status ${statusClass}">${statusLabel}</span></td>
+                    <td><small style="color:var(--muted)">${new Date(w.createdAt || Date.now()).toLocaleDateString('pt-BR')}</small></td>
+                    <td>
+                        <div class="actions">
+                            ${w.status === 'pending' ? `
+                                <button class="primary" data-withdrawal-action="approved" data-withdrawal-id="${escapeHTML(w.id)}">✓ Aprovar</button>
+                                <button class="danger-btn" data-withdrawal-action="rejected" data-withdrawal-id="${escapeHTML(w.id)}">✕ Rejeitar</button>
+                                <button class="ghost" data-withdrawal-action="blocked" data-withdrawal-id="${escapeHTML(w.id)}">⛔ Bloquear</button>
+                            ` : `<small style="color:var(--muted)">Decidido</small>`}
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        async function decideWithdrawal(withdrawalId, status) {
+            let reason = '';
+            if (status === 'rejected' || status === 'blocked') {
+                reason = prompt(`Informe o motivo para ${status === 'rejected' ? 'rejeitar' : 'bloquear'} o saque:`, 'Inconsistência cadastral ou limite de segurança');
+                if (reason === null) return;
+            }
+            try {
+                const res = await adminFetch(`/api/admin/withdrawals/${withdrawalId}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ status, reason })
+                });
+                if (!res.ok) throw new Error();
+                showToast(`Saque ${withdrawalId} marcado como ${status.toUpperCase()}!`);
+                refreshAdminData();
+            } catch (err) {
+                showToast('Erro ao atualizar status do saque.');
+            }
+        }
+
+        // SETTINGS (REGRAS OPERACIONAIS)
+        function renderSettings() {
+            const s = adminData.settings || {};
+            document.getElementById('payoutModeSelect').value = s.payoutMode || 'manual';
+            document.getElementById('automaticLimitInput').value = s.automaticLimit || 2000;
+        }
+
+        async function saveSettings(e) {
+            e.preventDefault();
+            const body = {
+                payoutMode: document.getElementById('payoutModeSelect').value,
+                automaticLimit: Number(document.getElementById('automaticLimitInput').value)
+            };
+            try {
+                const res = await adminFetch('/api/admin/settings', {
+                    method: 'PATCH',
+                    body: JSON.stringify(body)
+                });
+                if (!res.ok) throw new Error();
+                showToast('Regras operacionais salvas com sucesso!');
+                refreshAdminData();
+            } catch (err) {
+                showToast('Erro ao salvar configurações.');
+            }
+        }
+
+        // PLANS
+        function renderPlans() {
+            const plans = adminData.plans || {};
+            const userPlanSelect = document.getElementById('editUserPlan');
+            if (userPlanSelect) {
+                const selectedPlan = userPlanSelect.value;
+                userPlanSelect.innerHTML = Object.keys(plans).map(name => `<option value="${escapeHTML(name)}">${escapeHTML(name)}</option>`).join('');
+                if (Object.hasOwn(plans, selectedPlan)) userPlanSelect.value = selectedPlan;
+            }
+            const c = document.getElementById('plansContainer');
+            c.innerHTML = Object.entries(plans).map(([name, p]) => `
+                <div class="panel" style="margin:0;border-color:#53366f">
+                    <span class="status info">${escapeHTML(name)}</span>
+                    <h3 style="font-size:1.4rem;margin:12px 0 6px">${Number(p.percent) || 0}% <span style="font-size:.9rem;color:var(--muted)">+ R$ ${(Number(p.fixed) || 0).toFixed(2)}</span></h3>
+                    <p style="color:var(--muted);font-size:.76rem;line-height:1.5;margin-bottom:14px">
+                        ${p.med ? '✓ Proteção contra MED inclusa' : '✕ Sem proteção contra MED'}<br>
+                        Saque: R$ ${(Number(p.withdrawalFee) || 0).toFixed(2)}<br>
+                        ✓ Liquidação conforme regras gerais
+                    </p>
+                    <div class="actions" style="justify-content:flex-start;gap:8px;flex-wrap:wrap">
+                        <button class="ghost" data-plan-action="edit" data-plan-name="${escapeHTML(name)}" data-plan-percent="${Number(p.percent) || 0}" data-plan-fixed="${Number(p.fixed) || 0}" data-plan-med="${Boolean(p.med)}" data-plan-withdrawal-fee="${Number(p.withdrawalFee) || 0}">Editar</button>
+                        <button class="danger-btn" data-plan-action="delete" data-plan-name="${escapeHTML(name)}">Excluir</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function resetPlanForm() {
+            document.getElementById('planForm').reset();
+            document.getElementById('planMed').value = 'true';
+            document.getElementById('planWithdrawalFee').value = '0';
+        }
+
+        function fillPlanForm(name, percent, fixed, med, withdrawalFee = 0) {
+            document.getElementById('planName').value = name;
+            document.getElementById('planPercent').value = percent;
+            document.getElementById('planFixed').value = fixed;
+            document.getElementById('planWithdrawalFee').value = withdrawalFee;
+            document.getElementById('planMed').value = String(Boolean(med));
+            showToast(`Plano ${name} carregado no formulário.`);
+        }
+
+        async function savePlan(e) {
+            e.preventDefault();
+            const name = document.getElementById('planName').value.trim();
+            const body = {
+                name,
+                percent: Number(document.getElementById('planPercent').value),
+                fixed: Number(document.getElementById('planFixed').value),
+                withdrawalFee: Number(document.getElementById('planWithdrawalFee').value || 0),
+                med: document.getElementById('planMed').value === 'true'
+            };
+            if (!name || !Number.isFinite(body.percent) || !Number.isFinite(body.fixed) || !Number.isFinite(body.withdrawalFee)) {
+                showToast('Preencha nome e taxas válidas para o plano.');
+                return;
+            }
+            try {
+                const exists = Boolean((adminData.plans || {})[name]);
+                const res = await adminFetch(exists ? `/api/admin/plans/${encodeURIComponent(name)}` : '/api/admin/plans', {
+                    method: exists ? 'PATCH' : 'POST',
+                    body: JSON.stringify(body)
+                });
+                if (!res.ok) throw new Error();
+                resetPlanForm();
+                showToast('Plano salvo com sucesso!');
+                refreshAdminData();
+            } catch (err) {
+                showToast('Erro ao salvar plano.');
+            }
+        }
+
+        async function deletePlan(name) {
+            if (!name || !confirm(`Tem certeza que deseja excluir o plano ${name}?`)) return;
+            try {
+                const res = await adminFetch(`/api/admin/plans/${encodeURIComponent(name)}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error();
+                showToast(`Plano ${name} removido com sucesso.`);
+                refreshAdminData();
+            } catch (err) {
+                showToast('Erro ao excluir plano.');
+            }
+        }
+
+        // NOTICES (AVISOS)
+        function renderNotices() {
+            const list = adminData.notices || [];
+            const c = document.getElementById('noticesList');
+            if (list.length === 0) {
+                c.innerHTML = '<div style="color:var(--muted);font-size:.78rem;padding:12px 0">Nenhum aviso publicado ainda.</div>';
+                return;
+            }
+            c.innerHTML = list.map(n => `
+                <div style="padding:14px 18px;border:1px solid var(--line);border-radius:10px;margin-bottom:10px;background:#21182c">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                        <strong style="color:#fff;font-size:.85rem">${escapeHTML(n.title)}</strong>
+                        <span class="status info">${escapeHTML(n.type || 'Informativo')}</span>
+                    </div>
+                    <p style="color:var(--muted);font-size:.76rem;line-height:1.4">${escapeHTML(n.text)}</p>
+                    <small style="color:#6d5f7b;display:block;margin-top:6px">Público: ${escapeHTML(n.audience || 'Todos')} · Publicado em ${new Date(n.createdAt || Date.now()).toLocaleString('pt-BR')}</small>
+                </div>
+            `).join('');
+        }
+
+        async function publishNotice(e) {
+            e.preventDefault();
+            const body = {
+                title: document.getElementById('noticeTitle').value.trim(),
+                type: document.getElementById('noticeType').value,
+                audience: document.getElementById('noticeAudience').value,
+                text: document.getElementById('noticeText').value.trim()
+            };
+            try {
+                const res = await adminFetch('/api/admin/notices', {
+                    method: 'POST',
+                    body: JSON.stringify(body)
+                });
+                if (!res.ok) throw new Error();
+                document.getElementById('noticeForm').reset();
+                showToast('Aviso publicado no mural dos clientes!');
+                refreshAdminData();
+            } catch (err) {
+                showToast('Erro ao publicar aviso.');
+            }
+        }
+
+        // PARTNERS
+        function renderPartners() {
+            const list = adminData.partners || [];
+            const c = document.getElementById('partnersList');
+            if (list.length === 0) {
+                c.innerHTML = '<div style="color:var(--muted);font-size:.78rem;padding:12px 0">Nenhum parceiro dinâmico cadastrado.</div>';
+                return;
+            }
+            c.innerHTML = list.map(p => {
+                const partnerUrl = safeHttpUrl(p.link);
+                return `
+                <div style="padding:14px 18px;border:1px solid var(--line);border-radius:10px;margin-bottom:10px;background:#21182c;display:flex;justify-content:space-between;align-items:center">
+                    <div>
+                        <strong style="color:#fff;font-size:.88rem">${escapeHTML(p.name)}</strong> <span class="status info">${escapeHTML(p.type)}</span>
+                        <p style="color:var(--muted);font-size:.76rem;margin-top:3px">${escapeHTML(p.description)}</p>
+                    </div>
+                    ${partnerUrl ? `<a href="${escapeHTML(partnerUrl)}" target="_blank" rel="noopener noreferrer" class="ghost" style="padding:6px 12px;font-size:.72rem">Acessar ↗</a>` : ''}
+                </div>
+            `;
+            }).join('');
+        }
+
+        async function addPartner(e) {
+            e.preventDefault();
+            const body = {
+                name: document.getElementById('partnerName').value.trim(),
+                type: document.getElementById('partnerType').value,
+                description: document.getElementById('partnerDescription').value.trim(),
+                link: document.getElementById('partnerLink').value.trim()
+            };
+            try {
+                const res = await adminFetch('/api/admin/partners', {
+                    method: 'POST',
+                    body: JSON.stringify(body)
+                });
+                if (!res.ok) throw new Error();
+                document.getElementById('partnerForm').reset();
+                showToast('Parceria cadastrada com sucesso!');
+                refreshAdminData();
+            } catch (err) {
+                showToast('Erro ao cadastrar parceiro.');
+            }
+        }
+
+        // AUDIT LOGS
+        async function loadAuditLogs() {
+            try {
+                const res = await adminFetch('/api/admin/audit');
+                if (!res.ok) throw new Error();
+                const logs = await res.json();
+                const tbody = document.getElementById('auditTableBody');
+                if (logs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:24px">Nenhum log registrado.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = logs.slice(0, 50).map(l => `
+                    <tr>
+                        <td><small style="color:var(--muted)">${new Date(l.at).toLocaleString('pt-BR')}</small></td>
+                        <td><strong style="color:var(--purple)">${escapeHTML(l.actor || 'admin')}</strong></td>
+                        <td>${escapeHTML(l.action)}</td>
+                        <td><code>${escapeHTML(String(l.id || '').slice(0, 8))}...</code></td>
+                    </tr>
+                `).join('');
+                showToast('Logs de auditoria atualizados.');
+            } catch (err) {
+                showToast('Erro ao carregar auditoria.');
+            }
+        }
+
+        // LOGOUT
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            sessionStorage.removeItem('cyberpayAdminToken');
+            window.location.href = 'login.html';
+        });
+
+        // INITIAL LOAD
+        refreshAdminData();
+    </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/loginadmin", "destination": "/login.html" },
+    { "source": "/api/(.*)", "destination": "/api/index" }
+  ]
+}

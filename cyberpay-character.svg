@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 760" role="img" aria-labelledby="title desc">
+  <title id="title">Personagem CyberPay</title>
+  <desc id="desc">Personagem jovem da CyberPay usando headset, óculos futuristas e camiseta da marca.</desc>
+  <defs>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#11152c"/><stop offset=".55" stop-color="#34204f"/><stop offset="1" stop-color="#078dd0"/></linearGradient>
+    <linearGradient id="shirt" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#111827"/><stop offset="1" stop-color="#07111f"/></linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#00eaff"/><stop offset="1" stop-color="#3274ff"/></linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#ffd4b0"/><stop offset="1" stop-color="#e99b78"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <ellipse cx="260" cy="735" rx="170" ry="20" fill="#00d9ff" opacity=".16"/>
+  <path d="M151 389c-18 55-12 87 14 116l-31 166h250l-35-168c25-31 28-78 10-114z" fill="url(#shirt)" stroke="#168ed0" stroke-width="5"/>
+  <path d="M181 481l-38 184 55 12 18-144m112-52 38 184-55 12-18-144" fill="#101827" stroke="#1495df" stroke-width="6"/>
+  <path d="m151 651-20 72c-3 15 7 25 22 25h65v-24l-32-11 8-55zM369 651l20 72c3 15-7 25-22 25h-65v-24l32-11-8-55z" fill="#0a1322" stroke="#168ed0" stroke-width="6"/>
+  <path d="M190 414c-17 18-34 36-48 66-11 24-42 30-57 12-8-10-4-25 7-31l48-41 26-43z" fill="url(#skin)" stroke="#d7846b" stroke-width="4"/>
+  <path d="M135 477c-17-3-32-18-35-37l-7-43c-2-16 8-27 22-22l16 9 2-31c1-11 16-14 21-4l6 28 7-19c4-11 19-8 20 4l-3 45c-1 34-15 61-49 70z" fill="url(#skin)" stroke="#d7846b" stroke-width="4"/>
+  <path d="M228 419h64l-9 78h-46z" fill="url(#skin)" stroke="#d7846b" stroke-width="4"/>
+  <ellipse cx="260" cy="268" rx="137" ry="137" fill="url(#skin)" stroke="#d7846b" stroke-width="5"/>
+  <path d="M130 256c-17-61 5-137 70-162 90-36 192 18 196 120-24-21-45-37-75-46-52-15-111-8-156 22-9 18-19 40-35 66z" fill="url(#hair)" stroke="#078dd0" stroke-width="5"/>
+  <path d="M151 177c22-45 65-72 110-77-33 25-28 57-64 73 41-25 77-25 117-16-25 15-33 39-72 43 37-4 68 7 91 28-71-32-132-18-182 21z" fill="#0c1025" opacity=".9"/>
+  <path d="M121 218c-27-11-45 7-42 38 2 28 17 56 47 47l13-27-10-42zM399 218c27-11 45 7 42 38-2 28-17 56-47 47l-13-27 10-42z" fill="#1b2445" stroke="#00eaff" stroke-width="6"/>
+  <circle cx="109" cy="253" r="27" fill="#10182b" stroke="#078dd0" stroke-width="4"/><circle cx="411" cy="253" r="27" fill="#10182b" stroke="#078dd0" stroke-width="4"/><path d="M102 250h14m292 0h14" stroke="#00eaff" stroke-width="5"/>
+  <path d="M155 229h88v58h-82q-12-5-12-18v-22q0-13 6-18zM277 229h88q6 5 6 18v22q0 13-12 18h-82z" fill="#071329" fill-opacity=".86" stroke="url(#blue)" stroke-width="7"/>
+  <path d="M243 254h34" stroke="#00eaff" stroke-width="7"/>
+  <ellipse cx="201" cy="258" rx="21" ry="17" fill="#00eaff" opacity=".5" filter="url(#glow)"/><ellipse cx="319" cy="258" rx="21" ry="17" fill="#8e5cff" opacity=".5" filter="url(#glow)"/>
+  <path d="M243 320q18 16 36 0" fill="none" stroke="#a55757" stroke-width="5" stroke-linecap="round"/><path d="M247 285q13 9 26 0" fill="none" stroke="#d7846b" stroke-width="4"/>
+  <path d="M222 415q38 24 76 0l-9 27q-29 28-58 0z" fill="#00bde8" opacity=".8"/><path d="M218 535h85" stroke="#00eaff" stroke-width="5" opacity=".8"/><path d="m206 491 32 28 37-48 32 47" fill="none" stroke="#00c9ff" stroke-width="5"/>
+  <path d="M228 549h67" stroke="#e8f3ff" stroke-width="7"/><text x="260" y="575" text-anchor="middle" font-family="Arial, sans-serif" font-size="23" font-weight="800" fill="#e8f3ff">CYBER</text><text x="260" y="600" text-anchor="middle" font-family="Arial, sans-serif" font-size="25" font-weight="800" fill="#00d9ff">PAY</text>
+  <path d="M348 448c32 18 51 41 56 69 5 28-8 47-29 42-22-5-31-35-30-61z" fill="url(#skin)" stroke="#d7846b" stroke-width="4"/>
+  <rect x="363" y="519" width="47" height="65" rx="13" fill="#11192c" stroke="#00caff" stroke-width="5" transform="rotate(14 386 551)"/><circle cx="387" cy="550" r="12" fill="#00eaff" opacity=".7"/>
+  <circle cx="102" cy="85" r="7" fill="#00eaff" opacity=".8"><animate attributeName="cy" values="85;70;85" dur="2.5s" repeatCount="indefinite"/></circle><circle cx="430" cy="122" r="6" fill="#8e5cff"><animate attributeName="cy" values="122;106;122" dur="3s" repeatCount="indefinite"/></circle>
+</svg>

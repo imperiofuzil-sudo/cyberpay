@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberPay — Entrar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="cyberpay-theme.css">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { height: 100%; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0f;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+        h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
+
+        /* Background */
+        .bg-effects {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(0,240,255,.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(139,92,246,.06) 0%, transparent 50%),
+                #0a0a0f;
+        }
+        .bg-grid {
+            position: fixed; inset: 0; z-index: 1; pointer-events: none;
+            background-image:
+                linear-gradient(rgba(0,240,255,.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,240,255,.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        #particles { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
+
+        /* Floating shapes */
+        .float-shape {
+            position: fixed; border-radius: 50%; pointer-events: none; z-index: 1;
+            animation: floatShape 6s ease-in-out infinite;
+        }
+        .float-shape:nth-child(1) { width: 300px; height: 300px; top: -100px; right: -100px; background: radial-gradient(circle, rgba(0,240,255,.05), transparent); animation-delay: 0s; }
+        .float-shape:nth-child(2) { width: 200px; height: 200px; bottom: -50px; left: -50px; background: radial-gradient(circle, rgba(139,92,246,.05), transparent); animation-delay: 2s; }
+        .float-shape:nth-child(3) { width: 150px; height: 150px; top: 30%; left: 10%; background: radial-gradient(circle, rgba(0,240,255,.03), transparent); animation-delay: 4s; }
+        @keyframes floatShape { 0%,100%{transform:translate(0,0)} 50%{transform:translate(20px,-20px)} }
+
+        /* Login Card */
+        .login-wrapper {
+            position: relative; z-index: 10; width: 100%; max-width: 440px; padding: 20px;
+            animation: fadeIn .8s ease;
+        }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+        .back-link {
+            display: inline-flex; align-items: center; gap: 8px; color: #606070; font-size: .85rem;
+            margin-bottom: 24px; transition: color .3s; cursor: pointer;
+        }
+        .back-link:hover { color: #00f0ff; }
+
+        .login-card {
+            background: rgba(18,18,26,.85);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 24px;
+            padding: 48px 40px;
+            box-shadow: 0 20px 80px rgba(0,0,0,.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .login-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, #00f0ff, #8b5cf6, #00f0ff);
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+        }
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+        .logo {
+            font-family: 'Orbitron'; font-size: 1.8rem; font-weight: 900; text-align: center;
+            margin-bottom: 8px; color: #00f0ff; text-shadow: 0 0 30px rgba(0,240,255,.4);
+            letter-spacing: 3px;
+        }
+        .logo span { color: #8b5cf6; }
+        .gateway-logo { display:block; width:190px; height:auto; margin:0 auto 8px; }
+        .login-title { text-align: center; font-size: .95rem; color: #a3a3b4; margin-bottom: 10px; font-weight: 400; }
+        .login-hint { display: none; text-align: center; color: #717184; font-size: .78rem; margin: 0 0 30px; }
+        .login-card.admin-mode .login-hint { display: block; }
+        .login-card.admin-mode .login-title { margin-bottom: 8px; }
+        .login-card.admin-mode .signup-link { display: none; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: .8rem; font-weight: 600; color: #909090; margin-bottom: 8px; letter-spacing: .5px; }
+        .input-wrapper {
+            position: relative;
+            background: rgba(255,255,255,.03);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 12px;
+            transition: all .3s;
+        }
+        .input-wrapper:focus-within {
+            border-color: rgba(0,240,255,.4);
+            box-shadow: 0 0 20px rgba(0,240,255,.1);
+            background: rgba(0,240,255,.02);
+        }
+        .input-wrapper input {
+            width: 100%; padding: 14px 16px; background: transparent; border: none;
+            color: #e0e0e0; font-size: .95rem; font-family: 'Inter'; outline: none;
+        }
+        .input-wrapper input::placeholder { color: #404050; }
+        .input-icon {
+            position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            color: #404050; font-size: .9rem; cursor: pointer; transition: color .3s;
+            background: none; border: none;
+        }
+        .input-icon:hover { color: #00f0ff; }
+
+        .form-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+        .checkbox-label {
+            display: flex; align-items: center; gap: 8px; font-size: .8rem; color: #707080; cursor: pointer;
+        }
+        .checkbox-label input[type="checkbox"] {
+            appearance: none; width: 18px; height: 18px; border: 1.5px solid rgba(255,255,255,.15);
+            border-radius: 4px; background: rgba(255,255,255,.03); cursor: pointer; transition: all .3s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .checkbox-label input[type="checkbox"]:checked {
+            background: #00f0ff; border-color: #00f0ff;
+        }
+        .checkbox-label input[type="checkbox"]::after {
+            content: '✓'; color: #0a0a0f; font-size: .7rem; font-weight: 900; display: none;
+        }
+        .checkbox-label input[type="checkbox"]:checked::after { display: block; }
+        .forgot-link { font-size: .8rem; color: #8b5cf6; transition: color .3s; }
+        .forgot-link:hover { color: #a78bfa; }
+
+        .btn-login {
+            width: 100%; padding: 16px; border: none; border-radius: 12px;
+            background: linear-gradient(135deg, #00f0ff, #0891b2);
+            color: #0a0a0f; font-weight: 800; font-size: 1rem; font-family: 'Inter';
+            cursor: pointer; transition: all .3s; position: relative; overflow: hidden;
+            letter-spacing: .5px;
+        }
+        .btn-login:hover {
+            box-shadow: 0 0 40px rgba(0,240,255,.4);
+            transform: translateY(-2px);
+        }
+        .btn-login:active { transform: translateY(0); }
+        .btn-login::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,.2), transparent);
+            transform: translateX(-100%); transition: transform .5s;
+        }
+        .btn-login:hover::after { transform: translateX(100%); }
+
+        .signup-link {
+            text-align: center; margin-top: 28px; font-size: .85rem; color: #606070;
+        }
+        .signup-link a { color: #00f0ff; font-weight: 600; transition: color .3s; }
+        .signup-link a:hover { color: #8b5cf6; }
+
+        /* Validation */
+        .input-wrapper.error { border-color: #ef4444; }
+        .input-wrapper.error:focus-within { box-shadow: 0 0 20px rgba(239,68,68,.15); }
+        .error-msg { font-size: .75rem; color: #ef4444; margin-top: 6px; display: none; }
+        .error-msg.show { display: block; }
+        .auth-msg {
+            display: none; margin: 0 0 20px; padding: 12px 14px; border-radius: 10px;
+            background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.25);
+            color: #fca5a5; font-size: .8rem; line-height: 1.4;
+        }
+        .auth-msg.success {
+            background: rgba(34,197,94,.1); border-color: rgba(34,197,94,.25); color: #86efac;
+        }
+        .auth-msg.show { display: block; }
+
+        /* Loading */
+        .btn-login.loading { pointer-events: none; opacity: .7; }
+        .btn-login.loading::before {
+            content: ''; display: inline-block; width: 16px; height: 16px;
+            border: 2px solid rgba(10,10,15,.3); border-top-color: #0a0a0f;
+            border-radius: 50%; animation: spin .6s linear infinite;
+            margin-right: 8px; vertical-align: middle;
+        }
+        @keyframes spin { to{transform:rotate(360deg)} }
+
+        @media (max-width: 480px) {
+            .login-card { padding: 36px 24px; }
+            .logo { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-effects"></div>
+    <div class="bg-grid"></div>
+    <canvas id="particles"></canvas>
+    <div class="float-shape"></div>
+    <div class="float-shape"></div>
+    <div class="float-shape"></div>
+
+    <div class="login-wrapper">
+        <a href="index.html" class="back-link">← Voltar ao início</a>
+        
+        <div class="login-card">
+            <img class="gateway-logo" src="cyberpay-brand.svg" alt="CyberPay">
+            <p class="login-title">Acessar sua conta</p>
+            <p class="login-hint" id="loginHint">Área restrita a administradores autorizados</p>
+            <div class="auth-msg" id="authMessage" role="status" aria-live="polite"></div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">E-mail</label>
+                    <div class="input-wrapper" id="emailWrapper">
+                        <input type="email" id="email" placeholder="seu@email.com" autocomplete="email">
+                        <span class="input-icon">📧</span>
+                    </div>
+                    <div class="error-msg" id="emailError">Digite um e-mail válido</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Senha</label>
+                    <div class="input-wrapper" id="passWrapper">
+                        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+                        <button type="button" class="input-icon" onclick="togglePass()">👁</button>
+                    </div>
+                    <div class="error-msg" id="passError">A senha é obrigatória</div>
+                </div>
+
+                <div class="form-row">
+                    <label class="checkbox-label">
+                        <input type="checkbox"> Lembrar de mim
+                    </label>
+                    <a href="#" class="forgot-link">Esqueceu a senha?</a>
+                </div>
+
+                <button type="submit" class="btn-login" id="loginBtn">Entrar</button>
+            </form>
+
+            <div class="signup-link">
+                <span id="signupPrompt">Não tem conta? <a href="register.html">Criar conta</a></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Particles
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        resize(); window.addEventListener('resize', resize);
+        class P {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+                this.s = Math.random() * 1.5 + .5; this.sx = (Math.random()-.5)*.3; this.sy = (Math.random()-.5)*.3;
+                this.o = Math.random()*.4+.1; this.c = Math.random()>.5?'#00f0ff':'#8b5cf6';
+            }
+            update() { this.x+=this.sx; this.y+=this.sy; if(this.x<0||this.x>canvas.width||this.y<0||this.y>canvas.height)this.reset(); }
+            draw() { ctx.beginPath(); ctx.arc(this.x,this.y,this.s,0,Math.PI*2); ctx.fillStyle=this.c; ctx.globalAlpha=this.o; ctx.fill(); ctx.globalAlpha=1; }
+        }
+        for(let i=0;i<50;i++) particles.push(new P());
+        function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(animate); }
+        animate();
+
+        // Toggle password
+        function togglePass() {
+            const p = document.getElementById('password');
+            p.type = p.type === 'password' ? 'text' : 'password';
+        }
+
+        // Form validation
+        const isAdminLogin = window.location.pathname.replace(/\/+$/, '') === '/loginadmin';
+        if (isAdminLogin) {
+            document.querySelector('.login-card').classList.add('admin-mode');
+            document.querySelector('.login-title').textContent = 'Entrar no painel administrativo';
+            document.getElementById('signupPrompt').hidden = true;
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            let valid = true;
+            const email = document.getElementById('email');
+            const pass = document.getElementById('password');
+            const emailW = document.getElementById('emailWrapper');
+            const passW = document.getElementById('passWrapper');
+            const emailE = document.getElementById('emailError');
+            const passE = document.getElementById('passError');
+
+            emailW.classList.remove('error'); emailE.classList.remove('show');
+            passW.classList.remove('error'); passE.classList.remove('show');
+
+            if (!email.value || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+                emailW.classList.add('error'); emailE.classList.add('show'); valid = false;
+            }
+            if (!pass.value) {
+                passW.classList.add('error'); passE.classList.add('show'); valid = false;
+            }
+
+            if (valid) {
+                const btn = document.getElementById('loginBtn');
+                btn.classList.add('loading');
+                btn.disabled = true;
+                btn.textContent = 'Entrando...';
+                try {
+                    const endpoint = isAdminLogin ? '/api/auth/admin-login' : '/api/auth/login';
+                    const response = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email.value.trim(), password: pass.value }) });
+                    const payload = await response.json().catch(() => ({}));
+                    if (!response.ok) {
+                        showAuthMessage(payload.error || 'E-mail ou senha incorretos.', false);
+                        return;
+                    }
+                    localStorage.setItem('cyberpaySession', JSON.stringify({ token: payload.token, email: payload.user.email, name: payload.user.name, role: payload.user.role }));
+                    localStorage.setItem('cyberpayAccount', JSON.stringify(payload.user));
+                    if (payload.user.role === 'admin') {
+                        sessionStorage.setItem('cyberpayAdminToken', payload.token);
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                } catch {
+                    showAuthMessage('Falha de conexão. Confira sua internet e tente novamente.', false);
+                } finally {
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
+                    btn.textContent = 'Entrar';
+                }
+            }
+        }
+
+        function showAuthMessage(message, success) {
+            const messageEl = document.getElementById('authMessage');
+            messageEl.textContent = message;
+            messageEl.classList.toggle('success', success);
+            messageEl.classList.add('show');
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('registered') === '1') {
+            showAuthMessage('Conta criada. Entre com o e-mail e a senha cadastrados.', true);
+        }
+    </script>
+</body>
+</html>

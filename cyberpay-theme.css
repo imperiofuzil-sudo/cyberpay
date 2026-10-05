@@ -1,0 +1,177 @@
+/* CyberPay visual system: shared polish for the public and account experiences. */
+:root {
+    color-scheme: dark;
+    --cp-bg: #080b12;
+    --cp-surface: rgba(17, 23, 35, .82);
+    --cp-line: rgba(148, 163, 184, .16);
+    --cp-text: #edf4ff;
+    --cp-muted: #9aa9bd;
+    --cp-accent: #62e6d2;
+    --cp-violet: #8d7cff;
+}
+html { scroll-padding-top: 96px; }
+body { color: var(--cp-text); }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--cp-accent); outline-offset: 3px;
+}
+.panel, .stat, .login-card, .register-card, .pricing-calculator, .faq-item,
+.feature-card, .support-card, .testimonial-card {
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+.review-card { color: #edf4ff !important; background: linear-gradient(145deg, rgba(20, 29, 44, .9), rgba(12, 18, 29, .92)) !important; border: 1px solid var(--cp-line) !important; box-shadow: 0 24px 64px rgba(0, 0, 0, .22) !important; }
+.review-author .name { color: #edf4ff !important; }
+.review-author .role { color: #aab8ca !important; }
+.reviews-track { animation: none !important; width: auto !important; flex-wrap: wrap; justify-content: center; padding: 0 24px; }
+.reviews-track .review-card:nth-child(n+7) { display: none; }
+.status.paid { color: #68e2b0 !important; background: rgba(27, 158, 108, .14) !important; border: 1px solid rgba(55, 206, 148, .22); }
+.status.pending { color: #f2c36f !important; background: rgba(183, 124, 22, .14) !important; border: 1px solid rgba(232, 174, 69, .22); }
+.status.failed { color: #ff8a9a !important; background: rgba(231, 63, 88, .13) !important; border: 1px solid rgba(231, 63, 88, .22); }
+.primary, .btn-primary, .btn-big, .btn-cta, .submit-btn {
+    background-image: linear-gradient(120deg, #5ce2d0, #8278ff 78%);
+    color: #07111b;
+    box-shadow: 0 10px 30px rgba(85, 220, 207, .18);
+}
+.primary:hover, .btn-primary:hover, .btn-big:hover, .btn-cta:hover, .submit-btn:hover {
+    filter: brightness(1.08); transform: translateY(-2px);
+}
+.form-control, .modal-input, input, select, textarea { max-width: 100%; }
+.table-wrap { max-width: 100%; }
+
+/* Marketing site */
+body:has(.navbar) { background: #080b12; color: #edf4ff; }
+.navbar {
+    background: rgba(10, 15, 24, .82) !important;
+    border: 1px solid rgba(148, 163, 184, .16) !important;
+    box-shadow: 0 16px 50px rgba(0, 0, 0, .3) !important;
+}
+.nav-links a, .nav-logo-name { color: #eaf3ff !important; }
+.hero { background: #080b12 !important; }
+.hero-bg { background: radial-gradient(ellipse at 50% 20%, rgba(48, 208, 193, .12), transparent 56%), radial-gradient(ellipse at 80% 65%, rgba(130, 120, 255, .12), transparent 50%), #080b12 !important; }
+.hero-grid { opacity: .35; }
+.hero-text h1 { font-family: 'Inter', sans-serif !important; letter-spacing: -.055em; line-height: 1.04 !important; }
+.hero-text h1 .highlight { color: var(--cp-accent) !important; -webkit-text-fill-color: var(--cp-accent) !important; text-shadow: 0 0 34px rgba(98, 230, 210, .22) !important; }
+.hero-text p { color: #b2c1d3 !important; }
+.hero-text::before { content: 'INFRAESTRUTURA PIX PARA NEGÓCIOS DIGITAIS'; display: inline-flex; margin-bottom: 20px; padding: 8px 12px; border: 1px solid rgba(98, 230, 210, .24); border-radius: 999px; color: var(--cp-accent); font-size: .68rem; font-weight: 800; letter-spacing: .13em; }
+.hero-stats { border-color: var(--cp-line) !important; }
+.hero-stat .label, .hero-stat .num { color: #eaf3ff !important; }
+.ticker, .features, .dashboard-showcase, .pricing, .affiliate-channel, .developers, .audience, .support, .partnerships, .reviews, .testimonials, .faq, .cta-final, .footer {
+    background: #0b1019 !important; color: #edf4ff !important;
+}
+.features::before, .faq::before { opacity: .18; }
+.section-title, .faq .section-title, .pricing-text h2, .affiliate-intro h2, .support .section-title,
+.dashboard-showcase .section-title { color: #f2f7ff !important; }
+.section-subtitle, .pricing-text p, .affiliate-intro p { color: #a6b5c8 !important; }
+    .feature-card, .dashboard-window, .dashboard-chart, .dashboard-activity, .dashboard-metric,
+    .pricing-calculator, .support-card, .audience-card, .partner-card, .faq-item, .testimonial-card, .affiliate-preview {
+    color: #edf4ff !important;
+    background: linear-gradient(145deg, rgba(20, 29, 44, .9), rgba(12, 18, 29, .92)) !important;
+    border: 1px solid rgba(148, 163, 184, .16) !important;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, .22) !important;
+}
+.feature-card h3, .support-card h4, .dashboard-window h3, .dashboard-window h4,
+.dashboard-brand, .dashboard-metric strong, .dashboard-heading h3 { color: #edf4ff !important; }
+.dev-title, .audience .section-title, .partnerships .section-title, .audience-card h4, .partner-card h3 { color: #edf4ff !important; }
+.dev-desc, .dev-feature span, .audience-card p, .feature-card p, .support-card p, .faq-answer { color: #aab8ca !important; }
+.dashboard-sidebar { background: rgba(9, 14, 22, .8) !important; border-color: var(--cp-line) !important; }
+.dashboard-menu span { color: #aab8ca !important; }
+.dashboard-menu span:first-child { color: var(--cp-accent) !important; background: rgba(98, 230, 210, .09) !important; }
+.dashboard-activity div, .dashboard-metric, .dashboard-chart, .dashboard-activity { border-color: var(--cp-line) !important; }
+.dashboard-metric small, .dashboard-activity div { color: #aab8ca !important; }
+.pricing { border-block: 1px solid var(--cp-line); }
+.pricing-calculator .currency, .calc-result-main .value, .calc-compare .val { color: var(--cp-accent) !important; }
+.calc-input, .pricing-calculator input { color: #f2f7ff !important; background: rgba(5, 9, 16, .66) !important; border-color: var(--cp-line) !important; }
+.pricing-calculator .name, .pricing-calculator label, .calc-footer, .pricing-calculator .sublabel { color: #aab8ca !important; }
+.calc-compare { border-color: var(--cp-line) !important; }
+.calc-compare-row { border-color: var(--cp-line) !important; }
+.calc-compare { display: none !important; }
+.calc-result-main { border: 1px solid rgba(98, 230, 210, .2); border-radius: 16px; padding: 18px; background: rgba(98, 230, 210, .055); }
+.badge { color: var(--cp-accent) !important; background: rgba(98, 230, 210, .1) !important; }
+.support { border-block: 1px solid var(--cp-line); }
+.support-icon { background: rgba(98, 230, 210, .1) !important; color: var(--cp-accent) !important; }
+.faq { border-top: 1px solid var(--cp-line); }
+.faq-item { overflow: hidden; }
+.faq-question { color: #edf4ff !important; }
+.faq-question:hover { color: var(--cp-accent) !important; }
+.faq-arrow { color: var(--cp-accent) !important; }
+.testimonial-card { color: #edf4ff !important; }
+.testimonial-card p, .review-text { color: #b4c0d0 !important; }
+.footer { border-top: 1px solid var(--cp-line); }
+.footer a, .footer p, .footer h4 { color: #aab8ca !important; }
+.footer-support { background: linear-gradient(120deg, #5ce2d0, #8278ff) !important; color: #07111b !important; }
+.ticker { border-block: 1px solid var(--cp-line); }
+.ticker-item { color: #aab8ca !important; }
+
+@media (max-width: 900px) {
+    .container { padding-inline: 22px; }
+    .hero-content { padding-top: 120px !important; }
+    .hero-text h1 { font-size: clamp(2.35rem, 8vw, 4rem) !important; }
+    .dashboard-window { grid-template-columns: 1fr !important; }
+    .dashboard-sidebar { display: none; }
+    .dashboard-metrics { grid-template-columns: repeat(2, 1fr) !important; }
+    .dashboard-lower { grid-template-columns: 1fr !important; }
+    .support-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 640px) {
+    .navbar { top: 8px !important; left: 10px !important; right: 10px !important; }
+    .nav-inner { padding-inline: 14px !important; }
+    .container { padding-inline: 18px; }
+    .hero-content { min-height: 720px !important; padding-top: 126px !important; }
+    .hero-text p { font-size: 1rem !important; }
+    .hero-stats { flex-direction: row !important; flex-wrap: wrap; justify-content: center; }
+    .hero-stat { min-width: 40%; }
+    .features, .support, .faq, .dashboard-showcase { padding-block: 70px !important; }
+    .features-grid, .support-grid { grid-template-columns: 1fr !important; }
+    .dashboard-window { min-height: 0 !important; }
+    .dashboard-main { padding: 18px !important; }
+    .dashboard-metrics { gap: 8px !important; }
+    .dashboard-metric { padding: 11px !important; }
+    .dashboard-metric strong { font-size: .9rem !important; }
+    .pricing-inner { gap: 28px !important; }
+    .pricing-calculator { padding: 18px !important; }
+    .calc-result-main { align-items: flex-start !important; gap: 12px; }
+    .faq-item { border-radius: 14px !important; }
+    .faq-question { padding: 17px !important; font-size: .92rem !important; }
+    .faq-answer { padding-inline: 17px !important; font-size: .86rem !important; }
+    .faq-item.active .faq-answer { padding-bottom: 17px !important; }
+    .footer-grid { grid-template-columns: 1fr !important; }
+    .reviews-track .review-card { width: 100%; min-width: 0; }
+    .mobile-menu { background: rgba(9, 14, 22, .97) !important; border-color: var(--cp-line) !important; }
+}
+@media (max-width: 768px) {
+    .shell:has(.admin-profile), .shell:has(.nav-icon) { display: block !important; }
+    .shell:has(.admin-profile) .sidebar, .shell:has(.nav-icon) .sidebar {
+        width: 100% !important; height: auto !important; min-height: 0 !important; max-height: 48vh;
+        padding: 10px 12px !important; position: sticky !important; top: 0; overflow: hidden !important;
+        border-right: 0 !important; border-bottom: 1px solid var(--cp-line); z-index: 20;
+    }
+    .shell:has(.admin-profile) .brand, .shell:has(.nav-icon) .brand { display: flex !important; padding: 0 8px 8px !important; }
+    .shell:has(.admin-profile) .brand img, .shell:has(.nav-icon) .brand img { width: 104px !important; }
+    .shell:has(.admin-profile) .nav, .shell:has(.nav-icon) .nav {
+        display: flex !important; gap: 6px; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; padding-bottom: 5px;
+    }
+    .shell:has(.admin-profile) .nav button, .shell:has(.nav-icon) .nav button {
+        display: inline-flex !important; flex: 0 0 auto; justify-content: flex-start !important;
+        width: auto !important; padding: 9px 11px !important; white-space: nowrap; font-size: .74rem !important;
+    }
+    .shell:has(.admin-profile) .nav button span, .shell:has(.nav-icon) .nav button span { display: inline !important; }
+    .shell:has(.admin-profile) .nav-separator, .shell:has(.admin-profile) .overline,
+    .shell:has(.nav-icon) .nav-divider, .shell:has(.nav-icon) .nav-heading { display: none !important; }
+    .shell:has(.nav-icon) .nav-group { display: contents; }
+    .shell:has(.nav-icon) .nav-subnav { display: contents !important; margin: 0; padding: 0; border: 0; }
+    .shell:has(.nav-icon) .nav-group-toggle > .nav-chevron { display: none; }
+    .shell:has(.admin-profile) .sidebar-bottom, .shell:has(.nav-icon) .sidebar-bottom {
+        display: flex !important; margin: 7px 0 0 !important; padding: 7px 5px 0 !important;
+        border-top: 1px solid var(--cp-line); justify-content: flex-end;
+    }
+    .shell:has(.admin-profile) .admin-profile, .shell:has(.nav-icon) .profile { padding: 0 !important; border: 0 !important; }
+    .shell:has(.admin-profile) .admin-info, .shell:has(.nav-icon) .profile-text { display: none !important; }
+    .shell:has(.nav-icon) .help-box { display: none !important; }
+    .shell:has(.admin-profile) .main .topbar, .shell:has(.nav-icon) .main .topbar { padding: 12px 16px !important; }
+    .shell:has(.admin-profile) .content, .shell:has(.nav-icon) .content { padding: 20px 16px !important; }
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

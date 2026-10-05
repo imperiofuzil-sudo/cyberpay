@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberPay — Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="cyberpay-theme.css">
+    <style>
+        :root {
+            --ink: #f6f1fa;
+            --muted: #b8a9c6;
+            --line: rgba(167, 142, 201, 0.18);
+            --paper: #09070d;
+            --paper-2: #120d18;
+            --card: rgba(23, 18, 31, 0.92);
+            --card-alt: rgba(31, 23, 41, 0.9);
+            --cyan: #8b5cf6;
+            --cyan-soft: rgba(139, 92, 246, 0.14);
+            --violet: #ff5bbd;
+            --green: #22c67a;
+            --red: #ff6d7a;
+            --shadow: 0 18px 42px rgba(7, 5, 13, 0.45);
+        }
+        html { scroll-behavior: smooth; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top right, rgba(139, 92, 246, 0.16), transparent 28%),
+                radial-gradient(circle at bottom left, rgba(255, 91, 189, 0.12), transparent 30%),
+                linear-gradient(180deg, var(--paper) 0%, #0d0a12 45%, var(--paper-2) 100%);
+            min-height: 100vh;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+            pointer-events: none;
+        }
+        button, input, select { font: inherit; }
+        button { cursor: pointer; }
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(175, 149, 198, 0.35); border-radius: 999px; }
+        ::-webkit-scrollbar-track { background: rgba(19, 16, 23, 0.9); }
+        .shell { display: flex; min-height: 100vh; }
+        .sidebar {
+            width: 250px;
+            background: rgba(16, 13, 22, 0.9);
+            backdrop-filter: blur(12px);
+            color: #f8f5fb;
+            padding: 28px 18px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 5;
+            border-right: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 20px 0 38px rgba(0,0,0,0.12);
+        }
+        .brand { display: flex; align-items: center; gap: 10px; padding: 0 12px 38px; font-family: 'Space Grotesk'; font-size: 1.25rem; font-weight: 700; letter-spacing: 1px; }
+        .brand-mark { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg, #8b5cf6, #ec4899); font-size: .8rem; font-weight: 800; }
+        .gateway-logo { width:118px; height:auto; display:block; }
+        .brand span { color: #d9b4f5; }
+        .side-label { padding: 0 12px; color: #83788e; font-size: .68rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin: 0 0 10px; }
+        .nav { display: grid; gap: 5px; }
+        .nav button {
+            border: 1px solid transparent;
+            border-radius: 12px;
+            color: #a59aaa;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 13px;
+            text-align: left;
+            font-size: .88rem;
+            transition: .2s ease;
+        }
+        .nav button:hover, .nav button.active {
+            color: #fff;
+            background: linear-gradient(90deg, rgba(139,94,246,0.18), rgba(255,91,189,0.08));
+            border-color: rgba(255,255,255,0.06);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+        }
+        .nav-group { display: grid; gap: 4px; }
+        .nav-group-toggle { justify-content: space-between; width: 100%; }
+        .nav-group-toggle .nav-group-label { display: flex; align-items: center; gap: 12px; }
+        .nav-chevron { color: #8f829b; font-size: .9rem; transition: transform .2s; }
+        .nav-group.collapsed .nav-chevron { transform: rotate(-90deg); }
+        .nav-subnav { display: grid; gap: 4px; margin-left: 18px; padding-left: 10px; border-left: 1px solid #2e2538; }
+        .nav-subnav button { padding: 10px 12px; font-size: .86rem; }
+        .nav-group.collapsed .nav-subnav { display: none; }
+        .nav button.active .nav-icon { color: #ee8bc2; }
+        .nav-icon { width: 20px; color: #81758d; text-align: center; font-size: 1rem; }
+        .sidebar-bottom { margin-top: auto; }
+        .help-box { background: #1c1625; border: 1px solid #352542; border-radius: 13px; padding: 15px; margin: 22px 6px; }
+        .help-box strong { display: block; font-size: .8rem; margin-bottom: 5px; }
+        .help-box p { color: #a59aaa; font-size: .72rem; line-height: 1.5; margin-bottom: 12px; }
+        .help-box button { border: 1px solid #71468e; color: #ef9bc8; background: transparent; border-radius: 7px; padding: 7px 10px; font-size: .7rem; }
+        .profile { display: flex; gap: 10px; align-items: center; border-top: 1px solid #302438; padding: 18px 8px 0; }
+        .avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg, #7c3aed, #ec4899); font-weight: 700; font-size: .75rem; }
+        .profile-text { min-width: 0; flex: 1; }
+        .profile-text strong, .profile-text small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .profile-text strong { font-size: .78rem; }
+        .profile-text small { color: #9d91a6; font-size: .68rem; margin-top: 3px; }
+        .logout { border: 0; color: #95889f; background: transparent; font-size: 1rem; }
+        .main { flex: 1; min-width: 0; }
+        .topbar {
+            height: 78px;
+            background: rgba(18, 14, 25, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 42px;
+            position: sticky;
+            top: 0;
+            z-index: 6;
+        }
+        .breadcrumb { color: var(--muted); font-size: .8rem; }
+        .breadcrumb strong { color: var(--ink); font-weight: 600; }
+        .top-actions { display: flex; align-items: center; gap: 18px; }
+        .top-icon { width: 34px; height: 34px; border: 0; border-radius: 9px; background: transparent; color: #7b8390; font-size: 1.1rem; position: relative; }
+        .top-icon::after { content: ''; position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #ec4899; right: 4px; top: 3px; }
+        .security { color: var(--green); background: #e8f8f0; border-radius: 30px; padding: 7px 11px; font-size: .7rem; font-weight: 700; }
+        .content { max-width: 1440px; padding: 36px 42px 60px; margin: auto; }
+        .view { display: none; animation: rise .35s ease; }
+        .view.active { display: block; }
+        @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+        .page-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 30px; }
+        .eyebrow { color: var(--cyan); font-size: .7rem; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; margin-bottom: 8px; }
+        h1 { font-family: 'Space Grotesk'; font-size: clamp(1.7rem, 3vw, 2.25rem); letter-spacing: -.7px; }
+        .subheading { color: var(--muted); font-size: .88rem; margin-top: 7px; }
+        .primary {
+            border: 0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #fff;
+            background: linear-gradient(135deg, #8b5cf6, #ff5bbd);
+            font-size: .8rem;
+            font-weight: 700;
+            box-shadow: 0 10px 26px rgba(139, 92, 246, .24);
+        }
+        .primary:hover { background: linear-gradient(135deg, #7749eb, #ef4ca1); }
+        .ghost {
+            border: 1px solid rgba(167, 142, 201, 0.22);
+            border-radius: 12px;
+            padding: 11px 15px;
+            color: var(--ink);
+            background: rgba(26, 19, 35, 0.9);
+            font-size: .8rem;
+            font-weight: 600;
+        }
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 22px; }
+        .stat-card, .panel {
+            background: linear-gradient(180deg, rgba(23,18,31,0.96) 0%, rgba(18,13,24,0.92) 100%);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(8px);
+        }
+        .stat-card { min-height: 135px; padding: 20px; position: relative; overflow: hidden; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+        .stat-card::after { content: ''; position: absolute; width: 100px; height: 100px; border-radius: 50%; right: -40px; bottom: -50px; background: var(--cyan-soft); }
+        .stat-top { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: .76rem; }
+        .stat-icon { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: var(--cyan-soft); color: var(--cyan); position: relative; z-index: 1; }
+        .stat-value { font-family: 'Space Grotesk'; font-size: 1.6rem; margin-top: 18px; }
+        .stat-meta { color: var(--green); font-size: .7rem; margin-top: 5px; }
+        .grid-main { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(280px, .9fr); gap: 20px; align-items: start; }
+        .panel { padding: 22px; }
+        .panel-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+        .panel-heading h2 { font-family: 'Space Grotesk'; font-size: 1rem; }
+        .panel-heading span { color: var(--muted); font-size: .72rem; }
+        .chart-legend { display: flex; gap: 16px; color: var(--muted); font-size: .7rem; }
+        .legend-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--cyan); margin-right: 5px; }
+        .legend-dot.violet { background: var(--violet); }
+        .chart { height: 230px; display: flex; align-items: flex-end; gap: 14px; padding: 18px 4px 0; border-bottom: 1px solid var(--line); background: repeating-linear-gradient(to bottom, transparent 0, transparent 56px, #241c2d 57px); }
+        .bar-set { flex: 1; display: flex; align-items: flex-end; justify-content: center; gap: 4px; height: 100%; position: relative; }
+        .bar { width: min(17px, 40%); border-radius: 5px 5px 0 0; background: var(--cyan); opacity: .85; }
+        .bar.violet { background: var(--violet); opacity: .75; }
+        .bar-label { position: absolute; bottom: -24px; color: #9ba1ad; font-size: .65rem; }
+        .activity { display: grid; gap: 14px; }
+        .activity-row { display: flex; align-items: center; gap: 11px; }
+        .activity-mark { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: #e8f8f0; color: var(--green); font-size: .85rem; }
+        .activity-mark.out { background: #fff0f1; color: var(--red); }
+        .activity-copy { min-width: 0; flex: 1; }
+        .activity-copy strong, .activity-copy small { display: block; }
+        .activity-copy strong { font-size: .77rem; font-weight: 600; }
+        .activity-copy small { color: var(--muted); font-size: .67rem; margin-top: 3px; }
+        .activity-value { font-size: .78rem; font-weight: 700; }
+        .activity-value.in { color: var(--green); }
+        .activity-value.out { color: var(--red); }
+        .table-panel { margin-top: 20px; }
+        .table { width: 100%; border-collapse: collapse; }
+        .table th { color: #9aa0aa; text-align: left; font-size: .67rem; font-weight: 600; padding: 0 12px 13px; text-transform: uppercase; letter-spacing: .7px; }
+        .table td { border-top: 1px solid var(--line); padding: 15px 12px; font-size: .78rem; }
+        .table td:first-child { font-weight: 600; }
+        .status { border-radius: 20px; padding: 5px 9px; font-size: .65rem; font-weight: 700; display: inline-block; }
+        .status.paid { color: var(--green); background: #e9f8f0; }
+        .status.pending { color: #b47c16; background: #fff6df; }
+        .status.failed { color: var(--red); background: #ffedef; }
+        .empty { color: var(--muted); text-align: center; padding: 36px 10px; font-size: .82rem; }
+        .api-box { display: flex; align-items: center; gap: 12px; background: #17121f; color: #e9c8ff; border-radius: 10px; padding: 13px; font-family: monospace; font-size: .75rem; margin-top: 14px; }
+        .api-box code { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .copy { border: 0; border-radius: 6px; color: #fff; background: #c23886; padding: 6px 9px; font-size: .65rem; font-weight: 700; }
+        .quick-actions { display: grid; gap: 10px; }
+        .quick { display: flex; gap: 11px; align-items: center; border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: #1b1525; color: var(--ink); text-align: left; }
+        .quick:hover { border-color: #75439a; background: #241a32; }
+        .quick-icon { width: 29px; height: 29px; display: grid; place-items: center; color: var(--violet); background: #efedff; border-radius: 8px; }
+        .quick strong { display: block; font-size: .75rem; }
+        .quick small { display: block; color: var(--muted); font-size: .66rem; margin-top: 3px; }
+        .metric { display: grid; grid-template-columns: 1fr auto; gap: 6px; padding: 13px 0; border-bottom: 1px solid var(--line); font-size: .76rem; }
+        .metric span { color: var(--muted); }
+        .metric strong { font-weight: 700; }
+        .metric:last-child { border: 0; }
+        .nav-divider { height: 1px; background: #302438; margin: 18px 8px 12px; }
+        .nav-heading { padding: 0 12px; color: #83788e; font-size: .65rem; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; margin: 0 0 8px; }
+        .goal-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .goal { border: 1px solid var(--line); border-radius: 11px; padding: 13px; background: #1b1525; }
+        .goal.done { border-color: #28785d; background: #14271f; }
+        .goal-label { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: .68rem; }
+        .goal-label strong { color: var(--ink); font-size: .82rem; }
+        .goal-bar { height: 5px; border-radius: 4px; background: #30263b; overflow: hidden; margin-top: 14px; }
+        .goal-bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #7839d8, #ec4899); }
+        .goal small { display: block; color: var(--muted); font-size: .63rem; margin-top: 7px; }
+        .tag { border-radius: 20px; padding: 5px 9px; color: var(--violet); background: #efedff; font-size: .64rem; font-weight: 700; }
+        .tag.cyan { color: var(--cyan); background: var(--cyan-soft); }
+        .tag.red { color: var(--red); background: #ffedef; }
+        .info-list { display: grid; gap: 1px; }
+        .info-row { display: flex; align-items: center; gap: 13px; padding: 15px 0; border-bottom: 1px solid var(--line); }
+        .info-row:last-child { border: 0; }
+        .info-icon { width: 36px; height: 36px; display: grid; place-items: center; flex: 0 0 36px; color: var(--violet); background: #efedff; border-radius: 10px; font-weight: 700; }
+        .info-copy { flex: 1; min-width: 0; }
+        .info-copy strong, .info-copy small { display: block; }
+        .info-copy strong { font-size: .78rem; }
+        .info-copy small { color: var(--muted); font-size: .68rem; margin-top: 3px; }
+        .channel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; }
+        .channel-card { border: 1px solid var(--line); border-radius: 12px; padding: 17px; background: #1b1525; transition: .2s; }
+        .channel-card:hover { border-color: #d8b5ef; transform: translateY(-2px); }
+        .channel-logo { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 10px; color: #fff; background: linear-gradient(135deg, var(--violet), #9d91ff); font-weight: 800; margin-bottom: 15px; }
+        .channel-card h3 { font-family: 'Space Grotesk'; font-size: .86rem; margin-bottom: 5px; }
+        .channel-card p { color: var(--muted); font-size: .7rem; line-height: 1.5; }
+        .channel-card button { border: 0; color: var(--cyan); background: none; padding: 0; margin-top: 13px; font-size: .7rem; font-weight: 700; }
+        .plan-card { border: 1px solid #69458b; border-radius: 14px; padding: 23px; background: linear-gradient(135deg, #21152d, #17121f); }
+        .plan-name { font-family: 'Space Grotesk'; font-size: 1.45rem; margin: 10px 0 5px; }
+        .plan-price { color: var(--muted); font-size: .78rem; }
+        .plan-price strong { color: var(--ink); font-size: 1.3rem; }
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; color: #606775; font-size: .72rem; font-weight: 600; margin-bottom: 7px; }
+        .modal-input { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 12px; outline: none; margin-bottom: 14px; resize: vertical; }
+        .modal-input:focus { border-color: var(--cyan); }
+        .alert-card { border-left: 3px solid var(--cyan); border-radius: 10px; padding: 14px 16px; background: #1a1828; }
+        .alert-card.warning { border-color: #d99c2b; background: #292116; }
+        .alert-card strong { display: block; font-size: .78rem; }
+        .alert-card p { color: var(--muted); font-size: .7rem; line-height: 1.5; margin-top: 4px; }
+        .alert-card + .alert-card { margin-top: 10px; }
+        .switch { width: 45px; height: 25px; border: 0; border-radius: 20px; padding: 3px; background: #c8ced6; transition: .2s; }
+        .switch::after { content: ''; display: block; width: 19px; height: 19px; border-radius: 50%; background: #fff; transition: .2s; }
+        .switch.on { background: var(--green); }
+        .switch.on::after { transform: translateX(20px); }
+        .code-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
+        .backup-code { border: 1px solid var(--line); border-radius: 7px; padding: 8px 10px; color: var(--ink); background: #211a2c; font-family: monospace; font-size: .75rem; }
+        .notification-list { display: grid; gap: 10px; }
+        .notification-item { display: flex; align-items: flex-start; gap: 12px; border: 1px solid var(--line); border-radius: 11px; padding: 14px; background: #1b1525; }
+        .notification-item.unread { border-left: 3px solid var(--violet); background: #251629; }
+        .notification-icon { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 9px; color: var(--cyan); background: var(--cyan-soft); font-size: .8rem; }
+        .notification-copy { flex: 1; }
+        .notification-copy strong, .notification-copy small { display: block; }
+        .notification-copy strong { font-size: .77rem; }
+        .notification-copy small { color: var(--muted); font-size: .68rem; margin-top: 3px; line-height: 1.4; }
+        .channel-card.partner .channel-logo { background: linear-gradient(135deg, #7839d8, #ec4899); }
+        @media (max-width: 1100px) { .goal-grid { grid-template-columns: repeat(3, 1fr); } .channel-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .goal-grid, .channel-grid { grid-template-columns: 1fr; } }
+        .modal-backdrop { display: none; position: fixed; inset: 0; z-index: 30; background: rgba(10, 15, 22, .56); align-items: center; justify-content: center; padding: 20px; }
+        .modal-backdrop.open { display: flex; }
+        .modal { width: min(450px, 100%); background: #191321; color: var(--ink); border: 1px solid var(--line); border-radius: 16px; padding: 26px; box-shadow: 0 24px 80px rgba(0,0,0,.55); }
+        .modal h2 { font-family: 'Space Grotesk'; font-size: 1.2rem; margin-bottom: 7px; }
+        .modal p { color: var(--muted); font-size: .78rem; margin-bottom: 20px; }
+        .modal label { display: block; color: #606775; font-size: .72rem; font-weight: 600; margin-bottom: 7px; }
+        .modal input, .modal select { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 12px; outline: none; margin-bottom: 14px; }
+        .modal input:focus, .modal select:focus { border-color: var(--cyan); }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 5px; }
+        .toast { position: fixed; bottom: 24px; right: 24px; z-index: 40; background: #101820; color: #fff; border-radius: 9px; padding: 12px 16px; font-size: .78rem; transform: translateY(20px); opacity: 0; pointer-events: none; transition: .25s; }
+        .toast.show { transform: none; opacity: 1; }
+        /* Visual polish for the restored workspace layout. */
+        body { background: radial-gradient(circle at 82% -10%, rgba(120, 57, 216, .12), transparent 34%), var(--paper); }
+        .sidebar { border-right: 1px solid #2c2137; box-shadow: 18px 0 45px rgba(0, 0, 0, .16); }
+        .brand { border-bottom: 1px solid rgba(255,255,255,.06); margin-bottom: 26px; }
+        .gateway-logo { object-fit: contain; object-position: left center; filter: drop-shadow(0 0 12px rgba(20, 217, 255, .1)); }
+        .nav button { position: relative; border: 1px solid transparent; }
+        .nav button:hover { border-color: #352348; transform: translateX(2px); }
+        .nav button.active { border-color: #3d2852; box-shadow: inset 3px 0 0 #d9469d, 0 8px 20px rgba(0,0,0,.14); }
+        .nav button.active::after { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #ef8cc3; margin-left: auto; box-shadow: 0 0 10px #ef8cc3; }
+        .topbar { position: sticky; top: 0; z-index: 4; background: rgba(18, 14, 25, .9); backdrop-filter: blur(14px); }
+        .breadcrumb span { color: #665475; padding: 0 6px; }
+        .content { padding-top: 42px; }
+        .page-heading { margin-bottom: 34px; }
+        .page-heading > div { position: relative; padding-left: 14px; }
+        .page-heading > div::before { content: ''; position: absolute; left: 0; top: 3px; bottom: 3px; width: 3px; border-radius: 4px; background: linear-gradient(180deg, #37d9ef, #d66faf); opacity: .9; }
+        .eyebrow { color: #d66faf; }
+        h1 { text-shadow: 0 5px 25px rgba(0,0,0,.28); }
+        .subheading { line-height: 1.55; }
+        .security { color: #70e0ad; background: rgba(34,198,122,.1); border: 1px solid rgba(34,198,122,.18); }
+        .primary, .ghost { transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+        .primary:hover, .ghost:hover { transform: translateY(-2px); }
+        .primary:focus-visible, .ghost:focus-visible, .nav button:focus-visible, .quick:focus-visible { outline: 2px solid #ef8cc3; outline-offset: 3px; }
+        .stat-card, .panel { transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+        .stat-card { background: radial-gradient(circle at 100% 0, rgba(139,92,246,.1), transparent 38%), linear-gradient(155deg, rgba(29,22,39,.98), rgba(17,13,23,.96)); }
+        .stat-card:hover, .panel:hover { border-color: #49315c; box-shadow: 0 20px 45px rgba(0,0,0,.3); }
+        .stat-card:hover { transform: translateY(-2px); }
+        .panel-heading { padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,.045); }
+        .table-wrap { overflow-x: auto; }
+        .table tbody tr { transition: background .18s ease; }
+        .table tbody tr:hover { background: rgba(255,255,255,.025); }
+        .quick { transition: border-color .2s ease, background .2s ease, transform .2s ease; }
+        .quick:hover { transform: translateX(3px); }
+        .modal-backdrop { background: rgba(7, 5, 10, .72); backdrop-filter: blur(8px); }
+        .modal { background: linear-gradient(145deg, #21182b, #15101d); border-color: #49315c; box-shadow: 0 30px 100px rgba(0,0,0,.65); }
+        .modal label, .form-label { color: #b9a9c6; }
+        .modal input, .modal select, .modal-input { background: #fbfafc; color: #23172c; border-color: #e6ddeb; }
+        .modal input::placeholder, .modal-input::placeholder { color: #817686; }
+        .modal input:focus, .modal select:focus, .modal-input:focus { border-color: #bd55ba; box-shadow: 0 0 0 3px rgba(189,85,186,.16); }
+        .transfer-tabs { display: inline-flex; gap: 4px; padding: 4px; margin-bottom: 24px; background: #100c16; border: 1px solid #352542; border-radius: 11px; }
+        .transfer-tabs button { border: 0; border-radius: 8px; padding: 10px 14px; color: #9d91a6; background: transparent; font-size: .74rem; font-weight: 700; transition: .2s; }
+        .transfer-tabs button:hover { color: #fff; background: #241a32; }
+        .transfer-tabs button.active { color: #fff; background: linear-gradient(135deg, #7839d8, #c23886); box-shadow: 0 7px 18px rgba(120,57,216,.22); }
+        .view#transfers .panel[style*="background:#f8fbfd"] { background: #1b1525 !important; border-color: #3a2948; }
+        .view#transfers .panel[style*="background:#f8fbfd"] .panel-heading h2, .view#transfers .panel[style*="background:#f8fbfd"] .metric strong { color: var(--ink); }
+        .view#transfers .panel[style*="background:#f8fbfd"] .metric span { color: var(--muted); }
+        .toast { border: 1px solid #49315c; box-shadow: 0 14px 35px rgba(0,0,0,.35); }
+        @media (max-width: 1050px) { .sidebar { width: 220px; } .content, .topbar { padding-left: 26px; padding-right: 26px; } .stats { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 760px) { .sidebar { width: 70px; padding: 20px 10px; } .brand { padding: 0 10px 28px; } .gateway-logo { width: 42px; height: 30px; object-fit: cover; object-position: left; } .brand > span, .side-label, .nav button span:not(.nav-icon), .help-box, .profile-text, .logout { display: none; } .nav button { justify-content: center; padding: 13px 0; } .nav button.active::after { display: none; } .profile { justify-content: center; } .topbar { height: 68px; padding: 0 18px; } .security { display: none; } .content { padding: 25px 16px 45px; } .page-heading { align-items: flex-start; flex-direction: column; } .grid-main { grid-template-columns: 1fr; } .table-panel { overflow-x: auto; } .table { min-width: 650px; } .transfer-tabs { display: flex; width: 100%; overflow-x: auto; } .transfer-tabs button { flex: 1 0 auto; white-space: nowrap; } }
+        @media (max-width: 470px) { .stats { grid-template-columns: 1fr; } .chart { gap: 5px; } .chart-legend { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <aside class="sidebar">
+            <div class="brand"><img class="gateway-logo" src="cyberpay-brand.svg" alt="CyberPay"></div>
+            <div class="side-label">Workspace</div>
+            <nav class="nav" aria-label="Navegação principal">
+                <button class="active" data-view="overview"><span class="nav-icon">▦</span><span>Visão geral</span></button>
+                <button data-view="transactions"><span class="nav-icon">↔</span><span>Transações</span></button>
+                <button data-view="charges"><span class="nav-icon">＋</span><span>Cobranças Pix</span></button>
+                <button data-view="withdrawals"><span class="nav-icon">↗</span><span>Saques</span></button>
+                <div class="nav-group" id="apiNavGroup">
+                    <button class="nav-group-toggle" type="button" aria-expanded="true" aria-controls="apiSubnav"><span class="nav-group-label"><span class="nav-icon">⚿</span><span>API</span></span><span class="nav-chevron">⌃</span></button>
+                    <div class="nav-subnav" id="apiSubnav">
+                        <button data-view="api-credentials"><span class="nav-icon">⚿</span><span>Credenciais</span></button>
+                        <button data-view="api"><span class="nav-icon">▣</span><span>Documentação</span></button>
+                        <button data-view="api-webhooks"><span class="nav-icon">⌁</span><span>Webhooks</span></button>
+                    </div>
+                </div>
+                <button data-view="transfers"><span class="nav-icon">⇄</span><span>Transferências</span></button>
+                <button data-view="favorites"><span class="nav-icon">★</span><span>Favoritos Pix</span></button>
+                <div class="nav-divider"></div><div class="nav-heading">Relacionamento</div>
+                <button data-view="affiliates"><span class="nav-icon">↗</span><span>Divulgar CyberPay</span></button>
+                <button data-view="community"><span class="nav-icon">◉</span><span>Comunidade</span></button>
+                <button data-view="partnerships"><span class="nav-icon">∞</span><span>Parcerias</span></button>
+                <button data-view="suggestions"><span class="nav-icon">✎</span><span>Sugestões</span></button>
+                <button data-view="notices"><span class="nav-icon">!</span><span>Avisos</span></button>
+                <button data-view="notifications"><span class="nav-icon">♢</span><span>Notificações</span></button>
+                <div class="nav-divider"></div><div class="nav-heading">Conta</div>
+                <button data-view="med"><span class="nav-icon">⚑</span><span>Infrações (MED)</span></button>
+                <button data-view="plan"><span class="nav-icon">◆</span><span>Plano da gateway</span></button>
+                <button data-view="fees"><span class="nav-icon">%</span><span>Taxas e segurança</span></button>
+                <button data-view="security"><span class="nav-icon">⌾</span><span>Segurança</span></button>
+                <button data-view="support"><span class="nav-icon">?</span><span>Suporte</span></button>
+            </nav>
+            <div class="sidebar-bottom">
+                <div class="help-box"><strong>Precisa de ajuda?</strong><p>Fale com a equipe pelo WhatsApp oficial.</p><button data-view-jump="support">Abrir suporte</button></div>
+                <div class="profile"><div class="avatar" id="avatar">CP</div><div class="profile-text"><strong id="profileName">Cliente CyberPay</strong><small id="profileEmail">conta@cyberpay.dev</small></div><button class="logout" id="logout" title="Sair">↪</button></div>
+            </div>
+        </aside>
+        <main class="main">
+            <header class="topbar"><div class="breadcrumb">Workspace <span>/</span> <strong id="breadcrumb">Visão geral</strong></div><div class="top-actions"><span class="security">● Conta autenticada</span><button class="top-icon" data-view-jump="notifications" title="Notificações">♢</button><button class="top-icon" data-view-jump="security" title="Configurações">⚙</button></div></header>
+            <div class="content">
+                <section class="view active" id="overview">
+                    <div class="page-heading"><div><div class="eyebrow">Bom dia, <span id="greetingName">cliente</span></div><h1>Visão geral da operação</h1><p class="subheading">Acompanhe seu dinheiro e suas cobranças em um só lugar.</p></div><div style="display:flex;gap:9px;flex-wrap:wrap"><button class="ghost" data-transfer-action="Transferência iniciada">⇄ Transferir</button><button class="primary" data-modal-open>＋ Cobrar</button></div></div>
+                    <div class="stats">
+                        <article class="stat-card"><div class="stat-top"><span>Saldo disponível</span><span class="stat-icon">R$</span></div><div class="stat-value" data-gateway-metric="balance">Carregando…</div><div class="stat-meta">Saldo da conta</div></article>
+                        <article class="stat-card"><div class="stat-top"><span>Recebido no mês</span><span class="stat-icon">↗</span></div><div class="stat-value" data-gateway-metric="received">Carregando…</div><div class="stat-meta">Cobranças Pix pagas</div></article>
+                        <article class="stat-card"><div class="stat-top"><span>Taxas estimadas no mês</span><span class="stat-icon">%</span></div><div class="stat-value" data-gateway-metric="fees">Carregando…</div><div class="stat-meta">Conforme o plano ativo</div></article>
+                        <article class="stat-card"><div class="stat-top"><span>Cobranças pagas</span><span class="stat-icon">✓</span></div><div class="stat-value" data-gateway-metric="paid">Carregando…</div><div class="stat-meta" data-gateway-meta="pending">Sincronizado com a plataforma</div></article>
+                    </div>
+                    <article class="panel" style="margin-bottom:20px"><div class="panel-heading"><div><h2>Metas de movimentação</h2><span>Seu progresso mensal</span></div><span class="tag cyan">R$ 28.390 alcançados</span></div><div class="goal-grid"><div class="goal done"><div class="goal-label"><span>Meta 1</span><strong>R$ 1 mil</strong></div><div class="goal-bar"><i style="width:100%"></i></div><small>Concluída ✓</small></div><div class="goal done"><div class="goal-label"><span>Meta 2</span><strong>R$ 10 mil</strong></div><div class="goal-bar"><i style="width:100%"></i></div><small>Concluída ✓</small></div><div class="goal"><div class="goal-label"><span>Meta 3</span><strong>R$ 100 mil</strong></div><div class="goal-bar"><i style="width:28%"></i></div><small>R$ 28.390 de R$ 100 mil</small></div><div class="goal"><div class="goal-label"><span>Meta 4</span><strong>R$ 500 mil</strong></div><div class="goal-bar"><i style="width:6%"></i></div><small>Próximo nível</small></div><div class="goal"><div class="goal-label"><span>Meta 5</span><strong>R$ 1 mi</strong></div><div class="goal-bar"><i style="width:3%"></i></div><small>Grande conquista</small></div></div></article>
+                    <div class="grid-main">
+                        <article class="panel"><div class="panel-heading"><h2>Movimentações registradas</h2><span>Dados da conta</span></div><p class="subheading" data-gateway-empty>As movimentações aparecerão aqui quando sua conta registrar cobranças ou saques.</p><div class="chart" hidden></div></article>
+                        <article class="panel"><div class="panel-heading"><h2>Atividade recente</h2><button class="ghost" data-view-jump="transactions">Ver transações</button></div><div class="activity" data-gateway-activity><p class="subheading">Carregando atividade da conta…</p></div></article>
+                    </div>
+                    <div class="grid-main" style="margin-top:20px"><article class="panel"><div class="panel-heading"><h2>Últimas transações</h2><button class="ghost" data-view-jump="transactions">Ver todas</button></div><div class="table-wrap"><table class="table"><thead><tr><th>Referência</th><th>Data</th><th>Tipo</th><th>Valor</th><th>Status</th></tr></thead><tbody id="overviewTransactionsBody"><tr><td colspan="5">Carregando transações…</td></tr></tbody></table></div></article><article class="panel"><div class="panel-heading"><h2>Ações rápidas</h2></div><div class="quick-actions"><button class="quick" data-modal-open><span class="quick-icon">＋</span><span><strong>Criar cobrança Pix</strong><small>Gere um QR Code em segundos</small></span></button><button class="quick" data-view-jump="withdrawals"><span class="quick-icon">↗</span><span><strong>Solicitar saque</strong><small>Envie seu saldo para sua conta</small></span></button><button class="quick" data-view-jump="api"><span class="quick-icon">⌘</span><span><strong>Ver documentação</strong><small>Integre a API CyberPay</small></span></button></div></article></div>
+                </section>
+        <section class="view" id="transactions"><div class="page-heading"><div><div class="eyebrow">Financeiro</div><h1>Transações</h1><p class="subheading">Histórico das cobranças e transferências vinculadas à sua conta.</p></div><button class="ghost" id="exportTransactions">↓ Exportar CSV</button></div><article class="panel"><div class="panel-heading"><h2>Todos os lançamentos</h2><span data-transaction-count>Sincronizando…</span></div><div class="table-wrap"><table class="table"><thead><tr><th>Referência</th><th>Data</th><th>Tipo</th><th>Valor</th><th>Status</th></tr></thead><tbody id="transactionsBody"><tr><td colspan="5">Carregando transações…</td></tr></tbody></table></div></article></section>
+                <section class="view" id="charges"><div class="page-heading"><div><div class="eyebrow">Recebimentos</div><h1>Cobranças Pix</h1><p class="subheading">Crie, acompanhe e compartilhe suas cobranças.</p></div><button class="primary" data-modal-open>＋ Nova cobrança</button></div><article class="panel"><div class="panel-heading"><h2>Cobranças recentes</h2><span data-charge-count>Sincronizando…</span></div><div class="table-wrap"><table class="table"><thead><tr><th>Descrição</th><th>Identificador</th><th>Criada em</th><th>Valor</th><th>Status</th></tr></thead><tbody id="chargesBody"><tr><td colspan="5">Carregando cobranças…</td></tr></tbody></table></div></article></section>
+                <section class="view" id="withdrawals"><div class="page-heading"><div><div class="eyebrow">Movimentação</div><h1>Saques</h1><p class="subheading">Solicite e acompanhe seus saques.</p></div><button class="primary" data-withdrawal-open>＋ Solicitar saque</button></div><article class="panel"><div class="panel-heading"><h2>Histórico de saques</h2><span data-withdrawal-count>Sincronizando…</span></div><div class="table-wrap"><table class="table"><thead><tr><th>Destino</th><th>Solicitado em</th><th>Valor</th><th>Status</th></tr></thead><tbody id="withdrawalsBody"><tr><td colspan="4">Carregando saques…</td></tr></tbody></table></div></article></section>
+                <section class="view" id="api"><div class="page-heading"><div><div class="eyebrow">VexaPay para desenvolvedores</div><h1>API PIX VexaPay</h1><p class="subheading">Cobranças, saques e consulta de status no backend.</p></div></div><div class="grid-main"><article class="panel"><div class="panel-heading"><h2>Autenticação</h2><span>API REST</span></div><p class="subheading">Use as credenciais VexaPay somente no servidor. Nunca compartilhe Client Secret no navegador.</p><div class="metric"><span>Authorization</span><strong>Bearer SEU_CLIENT_SECRET</strong></div><div class="metric"><span>X-Client-Id</span><strong>SEU_CLIENT_ID</strong></div><div class="metric"><span>Base URL</span><strong>https://vexapay.site/api/v1</strong></div></article><article class="panel"><div class="panel-heading"><h2>Endpoints principais</h2><span>PIX</span></div><div class="metric"><span>Criar cobrança</span><strong>POST /charges</strong></div><div class="metric"><span>Consultar cobrança</span><strong>GET /charges/{id}</strong></div><div class="metric"><span>Criar saque</span><strong>POST /payouts</strong></div><div class="metric"><span>Consultar saque</span><strong>GET /payouts/{id}</strong></div></article></div><article class="panel"><div class="panel-heading"><h2>Corpo da cobrança</h2><span>JSON</span></div><p class="subheading">Informe payer.name e payer.document (CPF). external_id é recomendado para evitar duplicidade.</p><div class="api-box"><code>{ "amount": 1.00, "external_id": "pedido-123", "payer": { "name": "Maria da Silva", "document": "52998224725" } }</code></div></article><article class="panel"><div class="panel-heading"><h2>Corpo do saque</h2><span>JSON</span></div><p class="subheading">Informe pix_key e pix_key_type: cpf, cnpj, email, telefone ou aleatoria. HTTP 202 significa que o saque foi aceito para análise.</p><div class="api-box"><code>{ "amount": 1.00, "pix_key": "financeiro@empresa.com", "pix_key_type": "email", "external_id": "saque-987" }</code></div></article><p class="subheading">A API pode processar PIX real mesmo em sandbox. Consulte VEXAPAY_API.md para erros, webhooks e detalhes de integração.</p></section>
+                <section class="view" id="api-credentials"><div class="page-heading"><div><div class="eyebrow">VexaPay para desenvolvedores</div><h1>Configuração da API</h1><p class="subheading">Credenciais mantidas somente no ambiente do servidor.</p></div></div><article class="panel" style="max-width:760px"><div class="panel-heading"><h2>Variáveis de ambiente</h2><span>Backend</span></div><div class="metric"><span>VEXAPAY_BASE_URL</span><strong>https://vexapay.site/api/v1</strong></div><div class="metric"><span>VEXAPAY_CLIENT_ID</span><strong>ci_…</strong></div><div class="metric"><span>VEXAPAY_CLIENT_SECRET</span><strong>Configurado no servidor; não exibido</strong></div><div class="metric"><span>VEXAPAY_WEBHOOK_SECRET</span><strong>Configurado no servidor; não exibido</strong></div></article></section>
+                <section class="view" id="api-webhooks"><div class="page-heading"><div><div class="eyebrow">Desenvolvedores</div><h1>Webhooks VexaPay</h1><p class="subheading">Configure uma URL HTTPS no painel VexaPay e valide os eventos no servidor.</p></div></div><div class="grid-main"><article class="panel"><div class="panel-heading"><h2>Endpoint deste projeto</h2><span>HTTPS obrigatório</span></div><div class="api-box"><code>https://SEU_DOMINIO/api/webhooks/vexapay</code></div><p class="subheading">Configure VEXAPAY_WEBHOOK_SECRET no servidor. A rota valida X-VexaPay-Signature sobre o corpo bruto.</p></article><article class="panel"><div class="panel-heading"><h2>Eventos</h2><span>HMAC-SHA256</span></div><div class="metric"><span>Cobranças</span><strong>pix.charge.paid / pix.charge.cancelled</strong></div><div class="metric"><span>Saques</span><strong>pix.payout.paid / pix.payout.cancelled</strong></div><p class="subheading">A VexaPay não reenvia webhooks. Consulte GET /charges/{id} e GET /payouts/{id} como contingência.</p></article></div></section>
+                <section class="view" id="partnerships">
+    <div class="page-heading">
+        <div>
+            <div class="eyebrow">Ecossistema CyberPay</div>
+            <h1>Lojas & Canais de Parcerias</h1>
+            <p class="subheading">Conecte sua operação a lojas parceiras oficiais, bots de divulgação e canais certificados.</p>
+        </div>
+        <button class="primary" onclick="showToast('Solicitação de parceria enviada para análise')">＋ Propor parceria</button>
+    </div>
+
+    <!-- LOJAS E SERVIÇOS PARCEIROS EM DESTAQUE -->
+    <h2 style="font-family:'Space Grotesk';font-size:1.1rem;margin:0 0 16px;color:var(--ink)">Lojas e Serviços Parceiros</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:20px;margin-bottom:34px">
+        <!-- 1: CyberBuy -->
+        <article class="panel" style="overflow:hidden;padding:0;display:flex;flex-direction:column;border-color:#3d2b50;border-radius:16px">
+            <div style="height:170px;position:relative;overflow:hidden;background:#0d0a14">
+                <img src="parceiro-cyberbuy.jpg" alt="CyberBuy Online" style="width:100%;height:100%;object-fit:cover">
+                <span class="tag cyan" style="position:absolute;top:12px;left:12px;background:rgba(120,57,216,.9);color:#fff">Loja Parceira</span>
+            </div>
+            <div style="padding:22px;display:flex;flex-direction:column;flex:1">
+                <h3 style="font-family:'Space Grotesk';font-size:1.15rem;margin-bottom:8px">CyberBuy Online</h3>
+                <p style="color:var(--muted);font-size:.76rem;line-height:1.5;margin-bottom:18px">Loja digital de alta conversão integrada à CyberPay. Catálogo completo com aprovação Pix instantânea e entrega automatizada.</p>
+                <div style="margin-top:auto">
+                    <a href="https://cyberbuy.online/" target="_blank" rel="noopener noreferrer" class="primary" style="display:block;text-align:center;text-decoration:none;font-size:.8rem;padding:12px">Acessar Loja CyberBuy ↗</a>
+                </div>
+            </div>
+        </article>
+
+        <!-- 2: CyberBuy Divulga -->
+        <article class="panel" style="overflow:hidden;padding:0;display:flex;flex-direction:column;border-color:#3d2b50;border-radius:16px">
+            <div style="height:170px;position:relative;overflow:hidden;background:#0d0a14">
+                <img src="parceiro-divulga.jpg" alt="CyberBuy Divulga" style="width:100%;height:100%;object-fit:cover">
+                <span class="tag" style="position:absolute;top:12px;left:12px;background:rgba(194,56,134,.9);color:#fff">Automação WhatsApp</span>
+            </div>
+            <div style="padding:22px;display:flex;flex-direction:column;flex:1">
+                <h3 style="font-family:'Space Grotesk';font-size:1.15rem;margin-bottom:8px">CyberBuy Divulga</h3>
+                <p style="color:var(--muted);font-size:.76rem;line-height:1.5;margin-bottom:14px">🔥 <strong>Parou de divulgar? Parou de vender!</strong><br>Automatize publicações de textos, fotos e vídeos em grupos com controle de ritmo anti-ban e relatórios.</p>
+                <div style="margin-top:auto">
+                    <a href="https://t.me/hfdivulga_bot" target="_blank" rel="noopener noreferrer" class="primary" style="display:block;text-align:center;text-decoration:none;font-size:.8rem;padding:12px;background:linear-gradient(135deg,#7839d8,#ec4899)">🚀 Iniciar Bot no Telegram (@hfdivulga_bot) ↗</a>
+                </div>
+            </div>
+        </article>
+
+        <!-- 3: Infos Store -->
+        <article class="panel" style="overflow:hidden;padding:0;display:flex;flex-direction:column;border-color:#3d2b50;border-radius:16px">
+            <div style="height:170px;position:relative;overflow:hidden;background:#0d0a14">
+                <img src="parceiro-infostore.png" alt="Infos Store" style="width:100%;height:100%;object-fit:cover">
+                <span class="tag red" style="position:absolute;top:12px;left:12px;background:rgba(223,91,105,.9);color:#fff">Estoque & Bins</span>
+            </div>
+            <div style="padding:22px;display:flex;flex-direction:column;flex:1">
+                <h3 style="font-family:'Space Grotesk';font-size:1.15rem;margin-bottom:8px">Infos Store</h3>
+                <p style="color:var(--muted);font-size:.76rem;line-height:1.5;margin-bottom:14px">💳 <strong>50 Inf0s abastecidos hoje!</strong><br>Estoque recheado de bins com atualizações constantes, processo 100% seguro e suporte rápido humanizado.</p>
+                <div style="margin-top:auto">
+                    <a href="https://iinfo.store/yber7" target="_blank" rel="noopener noreferrer" class="primary" style="display:block;text-align:center;text-decoration:none;font-size:.8rem;padding:12px;background:linear-gradient(135deg,#df5b69,#991b1b)">💳 Acessar Infos Store (iinfo.store) ↗</a>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <!-- CANAIS ANTERIORES RESTAURADOS -->
+    <h2 style="font-family:'Space Grotesk';font-size:1.1rem;margin:0 0 16px;color:var(--ink)">Canais de Integração e Parcerias</h2>
+    <div class="channel-grid">
+        <article class="channel-card partner">
+            <div class="channel-logo">API</div>
+            <h3>Parceiros de integração</h3>
+            <p>Agências e desenvolvedores certificados para implantar sua API CyberPay com checkout transparente.</p>
+            <button onclick="showToast('Diretório de integrações aberto')">Ver diretório →</button>
+        </article>
+        <article class="channel-card partner">
+            <div class="channel-logo">LJ</div>
+            <h3>Parceiros lojistas</h3>
+            <p>Encontre soluções de e-commerce, checkout e automação para sua operação online.</p>
+            <button onclick="showToast('Rede de lojistas aberta')">Explorar parceiros →</button>
+        </article>
+        <article class="channel-card partner">
+            <div class="channel-logo">CP</div>
+            <h3>Programa de canais</h3>
+            <p>Indique clientes, acompanhe oportunidades e receba benefícios por parceria no ecossistema.</p>
+            <button onclick="showToast('Programa de canais aberto')">Conhecer programa →</button>
+        </article>
+    </div>
+</section>
+                <section class="view" id="notifications"><div class="page-heading"><div><div class="eyebrow">Acompanhamento em tempo real</div><h1>Notificações</h1><p class="subheading">Tudo o que acontece na sua conta fica registrado aqui.</p></div><button class="ghost" id="markNotificationsRead">Marcar todas como lidas</button></div><article class="panel"><div class="panel-heading"><h2>Atividade da conta</h2><span id="notificationCount">0 novas</span></div><div class="notification-list" id="notificationList"></div></article></section>
+                <section class="view" id="security"><div class="page-heading"><div><div class="eyebrow">Proteção da conta</div><h1>Segurança</h1><p class="subheading">Controle sua senha de saque e as sessões ativas.</p></div><span class="tag cyan" id="securityStatus">Proteção ativa</span></div><article class="panel"><div class="panel-heading"><h2>Senha de saque</h2><span id="withdrawalPasswordStatus" class="status pending">Não configurada</span></div><p class="subheading">Configure uma senha exclusiva. Ela será exigida sempre que você solicitar um saque.</p><div class="form-grid"><div class="form-group"><label class="form-label" for="withdrawalPassword">Nova senha de saque</label><input class="modal-input" id="withdrawalPassword" type="password" minlength="6" autocomplete="new-password"></div><div class="form-group"><label class="form-label" for="withdrawalPasswordConfirm">Confirmar senha</label><input class="modal-input" id="withdrawalPasswordConfirm" type="password" minlength="6" autocomplete="new-password"></div></div><button class="primary" id="saveWithdrawalPassword">Salvar senha de saque</button></article><article class="panel" style="margin-top:20px"><div class="panel-heading"><h2>Dispositivos e sessões</h2><span>1 sessão ativa</span></div><div class="info-row"><div class="info-icon">⌂</div><div class="info-copy"><strong>Este navegador</strong><small>Ativo agora · Windows · último acesso há poucos segundos</small></div><span class="status paid">Atual</span><button class="ghost" id="endOtherSessions">Encerrar outros</button></div></article></section>
+                <section class="view" id="support"><div class="page-heading"><div><div class="eyebrow">Central de ajuda</div><h1>Suporte</h1><p class="subheading">Fale com a equipe CyberPay pelo canal oficial de atendimento.</p></div></div><div class="grid-main"><article class="panel"><div class="panel-heading"><h2>WhatsApp CyberPay</h2><span>Atendimento</span></div><p class="subheading">Informe o e-mail cadastrado e, se precisar de ajuda com uma operação, envie também o identificador da cobrança ou saque.</p><a class="primary support-whatsapp" href="https://wa.me/5511925988460" target="_blank" rel="noopener noreferrer">Abrir conversa · (11) 92598-8460</a></article><article class="panel"><div class="panel-heading"><h2>Antes de chamar</h2></div><div class="metric"><span>Tenha em mãos</span><strong>E-mail da conta</strong></div><div class="metric"><span>Sobre uma transação</span><strong>Identificador da operação</strong></div><div class="metric"><span>Canal oficial</span><strong>WhatsApp</strong></div></article></div></section>
+                <section class="view" id="transfers"><div class="page-heading"><div><div class="eyebrow">Movimente seu saldo</div><h1>Transferências</h1><p class="subheading">Envie dinheiro por Pix ou entre contas CyberPay.</p></div><button class="primary" data-transfer-action="Nova transferência criada">＋ Nova transferência</button></div><article class="panel"><div class="transfer-tabs"><button class="active">Pix</button><button>Entre contas CyberPay</button><button>Agendada</button></div><div class="grid-main"><div><div class="form-group"><label class="form-label">Chave Pix ou conta de destino</label><input class="modal-input" placeholder="Digite uma chave Pix"></div><div class="form-group"><label class="form-label">Valor</label><input class="modal-input" placeholder="R$ 0,00"></div><button class="primary" data-transfer-action="Transferência em análise de segurança">Continuar transferência →</button></div><div class="panel" style="box-shadow:none;background:#f8fbfd"><div class="panel-heading"><h2>Limites da conta</h2></div><div class="metric"><span>Diário</span><strong>R$ 50.000,00</strong></div><div class="metric"><span>Utilizado hoje</span><strong>R$ 1.500,00</strong></div><div class="metric"><span>Disponível</span><strong style="color:var(--green)">R$ 48.500,00</strong></div></div></div></article></section>
+                <section class="view" id="favorites"><div class="page-heading"><div><div class="eyebrow">Acesso rápido</div><h1>Favoritos Pix</h1><p class="subheading">Salve chaves frequentes para transferir com mais agilidade.</p></div><button class="primary" onclick="showToast('Favorito Pix salvo')">＋ Salvar chave</button></div><article class="panel"><div class="panel-heading"><h2>Suas chaves salvas</h2><span>3 favoritos</span></div><div class="info-list"><div class="info-row"><div class="info-icon">★</div><div class="info-copy"><strong>Fornecedor Aurora</strong><small>aurora@empresa.com · Pix e-mail</small></div><span class="tag cyan">Verificado</span><button class="ghost" data-transfer-action="Transferência para Aurora iniciada">Transferir</button></div><div class="info-row"><div class="info-icon">★</div><div class="info-copy"><strong>Banco parceiro</strong><small>12.345.678/0001-90 · CNPJ</small></div><span class="tag cyan">Verificado</span><button class="ghost" data-transfer-action="Transferência para Banco parceiro iniciada">Transferir</button></div><div class="info-row"><div class="info-icon">★</div><div class="info-copy"><strong>Minha conta pessoal</strong><small>11999999999 · Telefone</small></div><span class="tag">Pessoal</span><button class="ghost" data-transfer-action="Transferência pessoal iniciada">Transferir</button></div></div></article></section>
+<section class="view" id="affiliates"><div class="page-heading"><div><div class="eyebrow">Compartilhamento</div><h1>Divulgue a CyberPay</h1><p class="subheading">Compartilhe o link público de cadastro com sua rede.</p></div><button class="primary" id="copySignupLink">↗ Copiar link</button></div><article class="panel" style="max-width:760px"><div class="panel-heading"><h2>Link de cadastro</h2><span>Link público</span></div><div class="api-box"><code id="signupLinkText">Carregando link…</code></div><p class="subheading">O link abre o cadastro geral da CyberPay. A plataforma não registra comissões ou rankings de indicação.</p></article></section>
+                <section class="view" id="community"><div class="page-heading"><div><div class="eyebrow">Conecte-se</div><h1>Comunidade CyberPay</h1><p class="subheading">Troque experiências com vendedores, criadores e desenvolvedores.</p></div><button class="primary" onclick="showToast('Convite da comunidade copiado')">↗ Entrar na comunidade</button></div><div class="channel-grid"><article class="channel-card"><div class="channel-logo">D</div><h3>Discord CyberPay</h3><p>Ajuda em integrações, anúncios e networking em tempo real.</p><button onclick="showToast('Canal Discord aberto')">Abrir canal →</button></article><article class="channel-card"><div class="channel-logo">T</div><h3>Telegram de avisos</h3><p>Receba novidades da plataforma e alertas de manutenção.</p><button onclick="showToast('Canal Telegram aberto')">Abrir canal →</button></article><article class="channel-card"><div class="channel-logo">F</div><h3>Fórum de vendedores</h3><p>Compartilhe estratégias, dúvidas e boas práticas de vendas.</p><button onclick="showToast('Fórum aberto')">Explorar fórum →</button></article></div></section>
+<section class="view" id="suggestions"><div class="page-heading"><div><div class="eyebrow">Ajude a construir</div><h1>Sugestões e melhorias</h1><p class="subheading">Envie ideias de recursos, novas integrações ou melhorias na plataforma.</p></div><button class="primary" onclick="showToast('Obrigado pela sua sugestão! Ela foi enviada para o time de produto.')">＋ Nova sugestão</button></div><article class="panel"><div class="panel-heading"><h2>Enviar sugestão</h2></div><div class="form-group"><label class="form-label">Título da sugestão</label><input class="modal-input" placeholder="Ex.: Integração com Shopify, suporte a Lightning Network..."></div><div class="form-group"><label class="form-label">Detalhes da ideia</label><textarea class="modal-input" rows="4" placeholder="Descreva como essa funcionalidade ajudaria sua operação..."></textarea></div><button class="primary" onclick="showToast('Sugestão registrada com sucesso!')">Enviar sugestão ao time</button></article></section>
+<section class="view" id="notices"><div class="page-heading"><div><div class="eyebrow">Comunicação oficial</div><h1>Avisos da plataforma</h1><p class="subheading">Comunicados, manutenções programadas e novidades operacionais da CyberPay.</p></div></div><article class="panel"><div class="panel-heading"><h2>Mural de comunicados</h2><span>Atualizado em tempo real</span></div><div class="alert-card"><strong>Manutenção preventiva agendada</strong><p>Nossos servidores passarão por otimização no domingo das 03:00 às 03:15. Operação Pix não será afetada.</p></div><div class="alert-card warning"><strong>Novas regras de saque automático</strong><p>Saques até R$ 2.000 são processados instantaneamente. Valores maiores passam por checagem de compliance.</p></div></article></section>
+<section class="view" id="med"><div class="page-heading"><div><div class="eyebrow">Mecanismo Especial de Devolução</div><h1>Infrações e Disputas (MED)</h1><p class="subheading">Acompanhe contestações e solicitações de devolução Pix abertas por pagadores.</p></div><span class="tag cyan">Conta regular</span></div><article class="panel"><div class="panel-heading"><h2>Histórico de contestações</h2><span>0 contestações ativas</span></div><div class="empty">Parabéns! Sua conta não possui nenhuma contestação ou bloqueio cautelar de MED registrado nos últimos 90 dias.</div></article></section>
+                <section class="view" id="plan"><div class="page-heading"><div><div class="eyebrow">Configurações de plano</div><h1>Plano da gateway</h1><p class="subheading">Consulte seu plano ativo e as condições mantidas pela administração.</p></div><span class="tag cyan" id="currentPlanBadge">Vendedor Pro</span></div><div class="grid-main"><div class="plan-card"><span class="tag">Plano ativo</span><h2 class="plan-name">Vendedor Pro</h2><div class="plan-price">Cobrança Pix: <strong id="planFeeSummary">3% + R$ 1,50</strong></div><p class="subheading">As tarifas e regras vinculadas ao seu plano são administradas pela equipe CyberPay.</p><button class="ghost" data-view-jump="support">Falar com o suporte sobre meu plano →</button></div><article class="panel"><div class="panel-heading"><h2>Planos disponíveis</h2><span>Dados da plataforma</span></div><div class="table-wrap"><table class="table"><thead><tr><th>Plano</th><th>Taxa Pix</th><th>Tarifa de saque</th><th>MED</th></tr></thead><tbody id="planComparisonBody"><tr><td colspan="4">Carregando planos…</td></tr></tbody></table></div></article></div></section>
+                <section class="view" id="fees"><div class="page-heading"><div><div class="eyebrow">Transparência</div><h1>Taxas e segurança</h1><p class="subheading">Consulte as condições atuais do seu plano e os controles da conta.</p></div><span class="tag cyan">Configuração da conta</span></div><div class="grid-main"><article class="panel"><div class="panel-heading"><h2>Taxas da sua conta</h2><span>Vendedor Pro</span></div><div class="metric"><span>Cobrança Pix</span><strong id="accountPixFee">Sincronizando…</strong></div><div class="metric"><span>Saque solicitado</span><strong id="accountWithdrawalFee">Sincronizando…</strong></div><div class="metric"><span>Modo de análise de saques</span><strong id="accountPayoutMode">Sincronizando…</strong></div></article><article class="panel"><div class="panel-heading"><h2>Segurança da conta</h2></div><div class="info-list"><div class="info-row"><div class="info-icon">✓</div><div class="info-copy"><strong>Senha de saque</strong><small>Gerencie em Segurança</small></div><span class="status info">Disponível</span></div><div class="info-row"><div class="info-icon">⌁</div><div class="info-copy"><strong>Registro de atividades</strong><small>Atividades administrativas ficam disponíveis ao suporte.</small></div><span class="status info">Registro</span></div></div></article></div></section>
+            </div>
+        </main>
+    </div>
+    <div class="modal-backdrop" id="modal"><div class="modal"><h2>Nova cobrança Pix</h2><p>Campos do pagador e descrição ficam opcionais. Informe apenas o que quiser.</p><label for="chargePayerName">Nome do pagador (opcional)</label><input id="chargePayerName" autocomplete="name" placeholder="Ex.: Maria da Silva"><label for="chargePayerDocument">CPF do pagador (opcional)</label><input id="chargePayerDocument" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00"><label for="chargeDescription">Descrição (opcional)</label><input id="chargeDescription" placeholder="Ex.: Pedido #1049"><label for="chargeExternalId">Identificador do pedido (opcional)</label><input id="chargeExternalId" maxlength="120" placeholder="pedido-1049"><label for="chargeAmount">Valor da cobrança</label><input id="chargeAmount" inputmode="decimal" placeholder="R$ 0,00"><div id="chargeResult" hidden><p id="chargeResultStatus"></p><img id="chargeQrCode" alt="QR Code Pix da cobrança" style="display:none;width:220px;max-width:100%;margin:12px auto"><label for="chargePixCode">Pix copia e cola</label><textarea id="chargePixCode" readonly rows="4"></textarea><button class="ghost" type="button" id="copyChargePix">Copiar código Pix</button></div><div class="modal-actions"><button class="ghost" data-modal-close>Fechar</button><button class="primary" id="createCharge">Gerar cobrança</button></div></div></div>
+    <div class="modal-backdrop" id="withdrawalModal"><div class="modal"><h2>Solicitar saque</h2><p>Informe os dados do saque e confirme com sua senha de saque.</p><label for="withdrawalDestination">Destino</label><input id="withdrawalDestination" placeholder="Banco, chave Pix ou carteira"><label for="withdrawalAmount">Valor</label><input id="withdrawalAmount" inputmode="decimal" placeholder="R$ 0,00"><label for="withdrawalPasswordInput">Senha de saque</label><input id="withdrawalPasswordInput" type="password" autocomplete="current-password"><div class="modal-actions"><button class="ghost" id="withdrawalCancel">Cancelar</button><button class="primary" id="submitWithdrawal">Confirmar saque</button></div></div></div>
+    <div class="toast" id="toast" role="status"></div>
+    <script src="client-security.js"></script>
+    <script>
+        const { escapeHTML, parseJSON } = window.CyberPaySecurity;
+        const account = parseJSON(localStorage.getItem('cyberpayAccount'));
+        const session = parseJSON(localStorage.getItem('cyberpaySession'));
+        const client = account || session;
+        const customerOverride = parseJSON(localStorage.getItem('cyberpayCustomerOverrides'));
+        if (!client) window.location.href = 'login.html';
+        const effectiveClient = customerOverride || client;
+        const displayName = effectiveClient && effectiveClient.name ? effectiveClient.name : 'Cliente CyberPay';
+        document.getElementById('profileName').textContent = displayName;
+        document.getElementById('profileEmail').textContent = effectiveClient && effectiveClient.email ? effectiveClient.email : 'conta@cyberpay.dev';
+        document.getElementById('greetingName').textContent = displayName.split(' ')[0];
+        document.getElementById('avatar').textContent = displayName.split(' ').slice(0, 2).map(part => part[0]).join('').toUpperCase();
+        const noticesPanel = document.querySelector('#notices .panel');
+        const partnersGrid = document.querySelector('#partnerships .channel-grid');
+        const withdrawalDescription = document.querySelector('#withdrawals .subheading');
+        let gatewayTransactions = [];
+        const formatBRL = value => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value) || 0);
+        const formatDate = value => { const date = new Date(value || ''); return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }); };
+        function renderGatewayTransactions(summary, transactions) {
+            const amount = item => Number(item.amount ?? item.transaction?.amount ?? item.value ?? 0);
+            const dateLabel = item => formatDate(item.createdAt || item.at || item.paidAt);
+            const title = item => item.description || item.external_id || item.clientTransactionId || `Operação ${String(item.id || '').slice(0, 8)}`;
+            const statusLabels = { paid: ['Pago', 'paid'], completed: ['Concluído', 'paid'], pending: ['Pendente', 'pending'], waiting_payment: ['Aguardando pagamento', 'pending'], cancelled: ['Cancelado', 'failed'], failed: ['Falhou', 'failed'] };
+            document.querySelector('[data-gateway-metric="balance"]').textContent = formatBRL(summary.availableBalance);
+            document.querySelector('[data-gateway-metric="received"]').textContent = formatBRL(summary.receivedThisMonth);
+            document.querySelector('[data-gateway-metric="fees"]').textContent = formatBRL(summary.feesThisMonth);
+            document.querySelector('[data-gateway-metric="paid"]').textContent = String(summary.paidCharges || 0);
+            document.querySelector('[data-gateway-meta="pending"]').textContent = `${summary.pendingCharges || 0} cobranças pendentes`;
+            document.querySelector('[data-transaction-count]').textContent = `${transactions.length} registro${transactions.length === 1 ? '' : 's'}`;
+            const rows = transactions.map(item => {
+                const status = statusLabels[String(item.status || '').toLowerCase()] || [String(item.status || 'Em processamento'), 'pending'];
+                return `<tr><td><strong>${escapeHTML(title(item))}</strong></td><td>${escapeHTML(dateLabel(item))}</td><td>${item.type === 'internal' ? 'Transferência' : item.pix_key ? 'Saque Pix' : 'Cobrança Pix'}</td><td>${formatBRL(amount(item))}</td><td><span class="status ${status[1] === 'paid' ? 'paid' : status[1] === 'failed' ? 'failed' : 'pending'}">${escapeHTML(status[0])}</span></td></tr>`;
+            }).join('');
+            document.getElementById('transactionsBody').innerHTML = rows || '<tr><td colspan="5">Ainda não há transações vinculadas a esta conta.</td></tr>';
+            document.getElementById('overviewTransactionsBody').innerHTML = transactions.slice(0, 5).map(item => {
+                const status = statusLabels[String(item.status || '').toLowerCase()] || ['Em processamento', 'pending'];
+                return `<tr><td>${escapeHTML(title(item))}</td><td>${escapeHTML(dateLabel(item))}</td><td>${item.type === 'internal' ? 'Transferência' : item.pix_key ? 'Saque Pix' : 'Cobrança Pix'}</td><td>${formatBRL(amount(item))}</td><td><span class="status ${status[1]}">${escapeHTML(status[0])}</span></td></tr>`;
+            }).join('') || '<tr><td colspan="5">Ainda não há movimentações nesta conta.</td></tr>';
+            const charges = transactions.filter(item => !item.pix_key && item.type !== 'internal');
+            document.querySelector('[data-charge-count]').textContent = `${charges.length} cobrança${charges.length === 1 ? '' : 's'}`;
+            document.getElementById('chargesBody').innerHTML = charges.slice(0, 50).map(item => {
+                const status = statusLabels[String(item.status || '').toLowerCase()] || ['Em processamento', 'pending'];
+                return `<tr><td>${escapeHTML(title(item))}</td><td>${escapeHTML(item.id || item.clientTransactionId || '—')}</td><td>${escapeHTML(dateLabel(item))}</td><td>${formatBRL(amount(item))}</td><td><span class="status ${status[1]}">${escapeHTML(status[0])}</span></td></tr>`;
+            }).join('') || '<tr><td colspan="5">Nenhuma cobrança registrada.</td></tr>';
+            document.querySelector('[data-gateway-activity]').innerHTML = transactions.slice(0, 4).map(item => {
+                const status = statusLabels[String(item.status || '').toLowerCase()] || ['Em processamento', 'pending'];
+                return `<div class="activity-row"><div class="activity-mark">${item.type === 'internal' ? '↔' : '↓'}</div><div class="activity-copy"><strong>${escapeHTML(title(item))}</strong><small>${escapeHTML(dateLabel(item))} · ${escapeHTML(status[0])}</small></div><span class="activity-value">${formatBRL(amount(item))}</span></div>`;
+            }).join('') || '<p class="subheading">Nenhuma movimentação registrada até o momento.</p>';
+            document.querySelector('[data-gateway-empty]').textContent = transactions.length ? `${transactions.length} movimentação(ões) registrada(s). Consulte o histórico completo em Transações.` : 'As movimentações aparecerão aqui quando sua conta registrar cobranças ou saques.';
+        }
+        async function syncWithdrawals() {
+            const response = await fetch('/api/withdrawals', { headers: { Authorization: 'Bearer ' + session.token } });
+            if (!response.ok) return;
+            const { items = [] } = await response.json();
+            const labels = { pending: ['Em análise', 'pending'], approved: ['Aprovado', 'paid'], blocked: ['Bloqueado', 'failed'], rejected: ['Rejeitado', 'failed'] };
+            document.querySelector('[data-withdrawal-count]').textContent = `${items.length} solicitação${items.length === 1 ? '' : 'ões'}`;
+            document.getElementById('withdrawalsBody').innerHTML = items.map(item => {
+                const [label, state] = labels[item.status] || ['Em processamento', 'pending'];
+                return `<tr><td>${escapeHTML(item.destination || '—')}</td><td>${escapeHTML(formatDate(item.createdAt))}</td><td>${formatBRL(item.value)}</td><td><span class="status ${state}">${label}</span></td></tr>`;
+            }).join('') || '<tr><td colspan="4">Nenhum saque solicitado.</td></tr>';
+        }
+        async function syncPlatformData() {
+            if (!session || !session.token) return;
+            const response = await fetch('/api/me', { headers: { Authorization: 'Bearer ' + session.token } });
+            if (!response.ok) return;
+            const platform = await response.json();
+            const publicConfigResponse = await fetch('/api/public/config');
+            if (publicConfigResponse.ok) {
+                const publicConfig = await publicConfigResponse.json();
+                if (publicConfig.support?.whatsapp) document.querySelectorAll('.support-whatsapp').forEach(link => { link.href = publicConfig.support.whatsapp; });
+            }
+            const serverUser = platform.user || {};
+            const currentName = serverUser.name || displayName;
+            document.getElementById('profileName').textContent = currentName;
+            document.getElementById('profileEmail').textContent = serverUser.email || 'conta@cyberpay.dev';
+            document.getElementById('greetingName').textContent = currentName.split(' ')[0];
+            document.getElementById('avatar').textContent = currentName.split(' ').slice(0, 2).map(part => part[0]).join('').toUpperCase();
+            withdrawalPasswordConfigured = Boolean(serverUser.withdrawalPasswordConfigured);
+            renderSecurity();
+            if (withdrawalDescription) withdrawalDescription.textContent = platform.settings?.payoutMode === 'automatic' ? 'Saques de baixo risco são processados automaticamente; valores acima do limite passam por análise.' : 'Todos os saques passam por análise manual da equipe CyberPay.';
+            if (noticesPanel && Array.isArray(platform.notices)) {
+                noticesPanel.innerHTML = '<div class="panel-heading"><h2>Mural de comunicados</h2><span>Atualizado pelo administrador</span></div>' + (platform.notices.length ? platform.notices.slice(0, 8).map(item => '<div class="alert-card"><strong>' + escapeHTML(item.title) + '</strong><p>' + escapeHTML(item.text) + ' · ' + escapeHTML(item.audience) + '</p></div>').join('') : '<p class="subheading">Nenhum comunicado publicado.</p>');
+            }
+            if (partnersGrid && Array.isArray(platform.partners)) {
+                partnersGrid.innerHTML = platform.partners.length ? platform.partners.slice(0, 6).map(item => '<article class="channel-card partner"><div class="channel-logo">+</div><h3>' + escapeHTML(item.name) + '</h3><p>' + escapeHTML(item.description) + '</p><button>Conhecer parceria →</button></article>').join('') : '<p class="subheading">Nenhuma parceria publicada.</p>';
+            }
+            const activePlan = platform.plans?.[serverUser.plan] || platform.plans?.['Vendedor Pro'];
+            if (activePlan) {
+                const planName = serverUser.plan || 'Vendedor Pro';
+                const percent = Number(activePlan.percent || 0).toLocaleString('pt-BR', { maximumFractionDigits: 2 });
+                const fixed = Number(activePlan.fixed || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                const withdrawalFee = formatBRL(activePlan.withdrawalFee);
+                document.getElementById('currentPlanBadge').textContent = planName;
+                document.querySelector('#plan .plan-name').textContent = planName;
+                document.getElementById('planFeeSummary').textContent = `${percent}% + R$ ${fixed}`;
+                document.querySelector('#fees .panel .panel-heading span').textContent = planName;
+                document.getElementById('accountPixFee').textContent = `${percent}% + R$ ${fixed}`;
+                document.getElementById('accountWithdrawalFee').textContent = withdrawalFee;
+                document.getElementById('accountPayoutMode').textContent = platform.settings?.payoutMode === 'automatic' ? `Automático até ${formatBRL(platform.settings.automaticLimit)}` : 'Análise manual';
+            }
+            const planRows = Object.entries(platform.plans || {}).map(([name, plan]) => `<tr><td><strong>${escapeHTML(name)}</strong></td><td>${Number(plan.percent || 0).toLocaleString('pt-BR')}% + ${formatBRL(plan.fixed)}</td><td>${formatBRL(plan.withdrawalFee)}</td><td>${plan.med ? 'Configurado' : 'Não configurado'}</td></tr>`).join('');
+            document.getElementById('planComparisonBody').innerHTML = planRows || '<tr><td colspan="4">Nenhum plano disponível.</td></tr>';
+            const gatewayResponse = await fetch('/api/gateway/overview', { headers: { Authorization: 'Bearer ' + session.token } });
+            if (gatewayResponse.ok) {
+                const gateway = await gatewayResponse.json();
+                gatewayTransactions = Array.isArray(gateway.transactions) ? gateway.transactions : [];
+                renderGatewayTransactions(gateway.summary || {}, gatewayTransactions);
+            }
+            await syncWithdrawals();
+            await syncNotifications();
+        }
+        syncPlatformData().catch(() => showToast('Não foi possível sincronizar as configurações da plataforma.'));
+        document.getElementById('exportTransactions').addEventListener('click', () => {
+            if (!gatewayTransactions.length) { showToast('Não há transações para exportar.'); return; }
+            const rows = [['Referência', 'Data', 'Tipo', 'Valor', 'Status'], ...gatewayTransactions.map(item => [item.description || item.external_id || item.id || '', item.createdAt || item.at || '', item.type === 'internal' ? 'Transferência' : item.pix_key ? 'Saque Pix' : 'Cobrança Pix', item.amount ?? item.transaction?.amount ?? item.value ?? 0, item.status || ''])];
+            const csv = '\ufeff' + rows.map(row => row.map(value => `"${String(value).replaceAll('"', '""')}"`).join(';')).join('\r\n');
+            const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); link.download = 'cyberpay-transacoes.csv'; link.click(); URL.revokeObjectURL(link.href);
+        });
+        const notificationKey = 'cyberpayNotifications';
+        let notifications = parseJSON(localStorage.getItem(notificationKey)) || [];
+        function persistNotifications() { localStorage.setItem(notificationKey, JSON.stringify(notifications)); }
+        async function syncNotifications() {
+            const response = await fetch('/api/notifications', { headers: { Authorization: 'Bearer ' + session.token } });
+            if (!response.ok) return;
+            const auditItems = await response.json();
+            const readItems = parseJSON(localStorage.getItem('cyberpayReadNotifications')) || [];
+            const localItems = notifications.filter(item => item.local);
+            notifications = [...auditItems.map(item => {
+                const id = `audit_${item.id}`;
+                return { id, icon: '•', title: 'Atividade da conta', text: item.action, time: formatDate(item.at), unread: !readItems.includes(id) };
+            }), ...localItems].slice(0, 50);
+            persistNotifications();
+            renderNotifications();
+        }
+        function addNotification(title, text, icon) {
+            notifications.unshift({ id: `local_${Date.now()}`, icon: icon || '•', title, text, time: 'Agora', unread: true, local: true });
+            notifications = notifications.slice(0, 30);
+            persistNotifications();
+            renderNotifications();
+        }
+        function renderNotifications() {
+            const list = document.getElementById('notificationList');
+            if (!list) return;
+            list.innerHTML = notifications.map(item => '<div class="notification-item ' + (item.unread ? 'unread' : '') + '"><div class="notification-icon">' + escapeHTML(item.icon) + '</div><div class="notification-copy"><strong>' + escapeHTML(item.title) + '</strong><small>' + escapeHTML(item.text) + ' · ' + escapeHTML(item.time) + '</small></div>' + (item.unread ? '<span class="tag cyan">Nova</span>' : '') + '</div>').join('');
+            const unread = notifications.filter(item => item.unread).length;
+            document.getElementById('notificationCount').textContent = unread + ' novas';
+        }
+        renderNotifications();
+        let withdrawalPasswordConfigured = Boolean(client && client.withdrawalPasswordConfigured);
+        function renderSecurity() {
+            const withdrawalStatus = document.getElementById('withdrawalPasswordStatus');
+            withdrawalStatus.textContent = withdrawalPasswordConfigured ? 'Configurada' : 'Não configurada';
+            withdrawalStatus.classList.toggle('paid', withdrawalPasswordConfigured);
+            withdrawalStatus.classList.toggle('pending', !withdrawalPasswordConfigured);
+        }
+        renderSecurity();
+        const views = document.querySelectorAll('.view');
+        const navButtons = document.querySelectorAll('.nav button[data-view]');
+        function activateView(viewId) {
+            views.forEach(view => view.classList.toggle('active', view.id === viewId));
+            navButtons.forEach(button => button.classList.toggle('active', button.dataset.view === viewId));
+            const activeButton = document.querySelector('[data-view="' + viewId + '"]');
+            document.getElementById('breadcrumb').textContent = activeButton ? activeButton.querySelector('span:last-child').textContent : 'Visão geral';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        navButtons.forEach(button => button.addEventListener('click', () => activateView(button.dataset.view)));
+        const apiNavGroup = document.getElementById('apiNavGroup');
+        const apiNavToggle = apiNavGroup.querySelector('.nav-group-toggle');
+        apiNavToggle.addEventListener('click', () => {
+            const collapsed = apiNavGroup.classList.toggle('collapsed');
+            apiNavToggle.setAttribute('aria-expanded', String(!collapsed));
+        });
+        document.querySelectorAll('[data-view-jump]').forEach(button => button.addEventListener('click', () => activateView(button.dataset.viewJump)));
+        document.querySelectorAll('[data-transfer-action]').forEach(button => button.addEventListener('click', () => { showToast(button.dataset.transferAction); addNotification('Transferência iniciada', button.dataset.transferAction, '⇄'); }));
+        const withdrawalModal = document.getElementById('withdrawalModal');
+        document.querySelectorAll('[data-withdrawal-open]').forEach(button => button.addEventListener('click', () => withdrawalModal.classList.add('open')));
+        document.getElementById('withdrawalCancel').addEventListener('click', () => withdrawalModal.classList.remove('open'));
+        withdrawalModal.addEventListener('click', event => { if (event.target === withdrawalModal) withdrawalModal.classList.remove('open'); });
+        document.getElementById('saveWithdrawalPassword').addEventListener('click', async () => { const password = document.getElementById('withdrawalPassword').value; const confirmPassword = document.getElementById('withdrawalPasswordConfirm').value; const response = await fetch('/api/auth/withdrawal-password', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (session && session.token || '') }, body: JSON.stringify({ password, confirmPassword }) }); const payload = await response.json(); if (!response.ok) { showToast(payload.error || 'Não foi possível salvar a senha de saque'); return; } withdrawalPasswordConfigured = true; localStorage.setItem('cyberpayAccount', JSON.stringify({ ...client, withdrawalPasswordConfigured: true })); document.getElementById('withdrawalPassword').value = ''; document.getElementById('withdrawalPasswordConfirm').value = ''; renderSecurity(); showToast('Senha de saque configurada'); });
+        document.getElementById('submitWithdrawal').addEventListener('click', async () => { const destination = document.getElementById('withdrawalDestination').value.trim(); const rawAmount = document.getElementById('withdrawalAmount').value.replace(/[^0-9,.-]/g, ''); const value = Number(rawAmount.includes(',') ? rawAmount.replace(/\./g, '').replace(',', '.') : rawAmount); const password = document.getElementById('withdrawalPasswordInput').value; const response = await fetch('/api/withdrawals', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (session && session.token || '') }, body: JSON.stringify({ destination, value, password }) }); const payload = await response.json(); if (!response.ok) { showToast(payload.error || 'Não foi possível solicitar o saque'); return; } withdrawalModal.classList.remove('open'); document.getElementById('withdrawalDestination').value = ''; document.getElementById('withdrawalAmount').value = ''; document.getElementById('withdrawalPasswordInput').value = ''; addNotification('Saque solicitado', 'Sua solicitação de saque foi enviada para análise de segurança.', '↑'); await syncWithdrawals(); showToast('Saque solicitado com sucesso'); });
+        document.getElementById('endOtherSessions').addEventListener('click', () => { addNotification('Sessões encerradas', 'Todos os outros dispositivos foram desconectados.', '⌂'); showToast('Outras sessões encerradas'); });
+        document.getElementById('markNotificationsRead').addEventListener('click', () => { const readItems = new Set(parseJSON(localStorage.getItem('cyberpayReadNotifications')) || []); notifications.forEach(item => { item.unread = false; if (item.id && !item.local) readItems.add(item.id); }); localStorage.setItem('cyberpayReadNotifications', JSON.stringify([...readItems])); persistNotifications(); renderNotifications(); showToast('Notificações marcadas como lidas'); });
+        document.getElementById('signupLinkText').textContent = `${window.location.origin}/register.html`;
+        document.getElementById('copySignupLink').addEventListener('click', async () => { try { await navigator.clipboard.writeText(document.getElementById('signupLinkText').textContent); showToast('Link de cadastro copiado'); } catch { showToast('Não foi possível acessar a área de transferência'); } });
+        const modal = document.getElementById('modal');
+        document.querySelectorAll('[data-modal-open]').forEach(button => button.addEventListener('click', () => { const result = document.getElementById('chargeResult'); if (!result.hidden) document.getElementById('chargeExternalId').value = ''; result.hidden = true; modal.classList.add('open'); }));
+        document.querySelectorAll('[data-modal-close]').forEach(button => button.addEventListener('click', () => modal.classList.remove('open')));
+        modal.addEventListener('click', event => { if (event.target === modal) modal.classList.remove('open'); });
+        document.getElementById('createCharge').addEventListener('click', async () => {
+            const description = document.getElementById('chargeDescription').value.trim();
+            const payerName = document.getElementById('chargePayerName').value.trim();
+            const payerDocument = document.getElementById('chargePayerDocument').value.replace(/\D/g, '');
+            const externalIdInput = document.getElementById('chargeExternalId');
+            const externalId = externalIdInput.value.trim() || `pedido-${crypto.randomUUID()}`;
+            externalIdInput.value = externalId;
+            const rawAmount = document.getElementById('chargeAmount').value.replace(/[^0-9,.-]/g, '');
+            const amount = Number(rawAmount.includes(',') ? rawAmount.replace(/\./g, '').replace(',', '.') : rawAmount);
+            const button = document.getElementById('createCharge');
+            button.disabled = true;
+            try {
+                const payloadBody = { amount, external_id: externalId || undefined };
+                if (description) payloadBody.description = description;
+                if (payerName || payerDocument) {
+                    payloadBody.payer = {};
+                    if (payerName) payloadBody.payer.name = payerName;
+                    if (payerDocument) payloadBody.payer.document = payerDocument;
+                }
+                const response = await fetch('/api/gateway/charges', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (session && session.token || '') }, body: JSON.stringify(payloadBody) });
+                const payload = await response.json();
+                if (!response.ok) { showToast(payload.error || 'Não foi possível criar a cobrança.'); return; }
+                const pixCode = payload.copyPaste || payload.pix_copy_paste || '';
+                const qrCode = payload.qrCode || payload.qr_code_base64;
+                const qrImage = document.getElementById('chargeQrCode');
+                qrImage.style.display = qrCode ? 'block' : 'none';
+                if (qrCode) qrImage.src = qrCode;
+                document.getElementById('chargePixCode').value = pixCode;
+                document.getElementById('chargeResultStatus').textContent = `Cobrança ${payload.id} · ${payload.status}`;
+                document.getElementById('chargeResult').hidden = false;
+                externalIdInput.value = payload.external_id || payload.clientTransactionId || externalId;
+                addNotification('Pix gerado', `Cobrança ${payload.id || ''} criada com sucesso.`, '＋');
+                await syncPlatformData();
+                showToast('Cobrança criada na VexaPay.');
+            } catch {
+                showToast('Falha de conexão ao criar cobrança. Tente novamente usando o mesmo identificador.');
+            } finally {
+                button.disabled = false;
+            }
+        });
+        document.getElementById('copyChargePix').addEventListener('click', async () => { await navigator.clipboard.writeText(document.getElementById('chargePixCode').value); showToast('Código Pix copiado.'); });
+        document.querySelectorAll('[data-copy]').forEach(button => button.addEventListener('click', async () => { await navigator.clipboard.writeText(button.dataset.copy); button.textContent = 'Copiado'; showToast('API key copiada para a área de transferência'); setTimeout(() => button.textContent = 'Copiar', 1800); }));
+        document.getElementById('logout').addEventListener('click', () => { localStorage.removeItem('cyberpaySession'); window.location.href = 'login.html'; });
+        function showToast(message) { const toast = document.getElementById('toast'); toast.textContent = message; toast.classList.add('show'); clearTimeout(window.toastTimer); window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2800); }
+    </script>
+</body>
+</html>

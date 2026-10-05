@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberPay — Criar Conta</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="cyberpay-theme.css">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { height: 100%; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0f;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+            padding: 40px 0;
+        }
+        h1, h2, h3 { font-family: 'Orbitron', sans-serif; }
+        a { text-decoration: none; color: inherit; }
+
+        .bg-effects {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background:
+                radial-gradient(ellipse at 80% 50%, rgba(139,92,246,.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 20% 80%, rgba(0,240,255,.06) 0%, transparent 50%),
+                #0a0a0f;
+        }
+        .bg-grid {
+            position: fixed; inset: 0; z-index: 1; pointer-events: none;
+            background-image:
+                linear-gradient(rgba(139,92,246,.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(139,92,246,.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        #particles { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
+
+        .float-shape {
+            position: fixed; border-radius: 50%; pointer-events: none; z-index: 1;
+            animation: floatShape 6s ease-in-out infinite;
+        }
+        .float-shape:nth-child(1) { width: 250px; height: 250px; top: -80px; left: -80px; background: radial-gradient(circle, rgba(139,92,246,.06), transparent); }
+        .float-shape:nth-child(2) { width: 200px; height: 200px; bottom: -60px; right: -60px; background: radial-gradient(circle, rgba(0,240,255,.05), transparent); animation-delay: 3s; }
+        @keyframes floatShape { 0%,100%{transform:translate(0,0)} 50%{transform:translate(15px,-15px)} }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+        @keyframes spin { to{transform:rotate(360deg)} }
+        @keyframes slideIn { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes slideOut { from{opacity:1;transform:translateX(0)} to{opacity:0;transform:translateX(-30px)} }
+
+        .register-wrapper {
+            position: relative; z-index: 10; width: 100%; max-width: 500px; padding: 20px;
+            animation: fadeIn .8s ease;
+        }
+        .back-link {
+            display: inline-flex; align-items: center; gap: 8px; color: #606070; font-size: .85rem;
+            margin-bottom: 24px; transition: color .3s;
+        }
+        .back-link:hover { color: #8b5cf6; }
+
+        .register-card {
+            background: rgba(18,18,26,.85);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 24px;
+            padding: 44px 40px;
+            box-shadow: 0 20px 80px rgba(0,0,0,.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .register-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, #8b5cf6, #00f0ff, #8b5cf6);
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+        }
+
+        .logo {
+            font-family: 'Orbitron'; font-size: 1.8rem; font-weight: 900; text-align: center;
+            margin-bottom: 8px; color: #00f0ff; text-shadow: 0 0 30px rgba(0,240,255,.4);
+            letter-spacing: 3px;
+        }
+        .logo span { color: #8b5cf6; }
+        .reg-title { text-align: center; font-size: .95rem; color: #707080; margin-bottom: 32px; }
+
+        /* Progress Steps */
+        .progress-bar { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 36px; }
+        .progress-step {
+            display: flex; align-items: center; gap: 0;
+        }
+        .step-circle {
+            width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-family: 'Orbitron'; font-weight: 700; font-size: .8rem;
+            border: 2px solid rgba(255,255,255,.1); color: #505060; background: rgba(255,255,255,.03);
+            transition: all .4s; position: relative; z-index: 2;
+        }
+        .step-circle.active {
+            border-color: #8b5cf6; color: #fff; background: #8b5cf6;
+            box-shadow: 0 0 20px rgba(139,92,246,.4);
+        }
+        .step-circle.done {
+            border-color: #00f0ff; color: #0a0a0f; background: #00f0ff;
+            box-shadow: 0 0 15px rgba(0,240,255,.3);
+        }
+        .step-line {
+            width: 60px; height: 2px; background: rgba(255,255,255,.08); transition: background .4s;
+        }
+        .step-line.done { background: linear-gradient(90deg, #00f0ff, #8b5cf6); }
+        .step-label { font-size: .65rem; color: #404050; margin-top: 6px; text-align: center; }
+        .step-label.active { color: #8b5cf6; }
+        .step-label.done { color: #00f0ff; }
+        .step-wrapper { display: flex; flex-direction: column; align-items: center; }
+
+        /* Form */
+        .step-content { display: none; }
+        .step-content.active { display: block; animation: slideIn .4s ease; }
+
+        .form-group { margin-bottom: 18px; }
+        .form-label { display: block; font-size: .8rem; font-weight: 600; color: #909090; margin-bottom: 8px; letter-spacing: .5px; }
+        .input-wrapper {
+            position: relative;
+            background: rgba(255,255,255,.03);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 12px;
+            transition: all .3s;
+        }
+        .input-wrapper:focus-within {
+            border-color: rgba(139,92,246,.4);
+            box-shadow: 0 0 20px rgba(139,92,246,.1);
+            background: rgba(139,92,246,.02);
+        }
+        .input-wrapper input, .input-wrapper select {
+            width: 100%; padding: 14px 16px; background: transparent; border: none;
+            color: #e0e0e0; font-size: .95rem; font-family: 'Inter'; outline: none;
+        }
+        .input-wrapper select option { background: #12121a; color: #e0e0e0; }
+        .input-wrapper input::placeholder { color: #404050; }
+        .input-icon {
+            position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            color: #404050; font-size: .9rem; cursor: pointer; transition: color .3s;
+            background: none; border: none;
+        }
+
+        .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        /* Account type toggle */
+        .type-toggle { display: flex; gap: 12px; margin-bottom: 18px; }
+        .type-btn {
+            flex: 1; padding: 14px; border: 1px solid rgba(255,255,255,.08); border-radius: 12px;
+            background: rgba(255,255,255,.03); color: #707080; font-size: .85rem; font-weight: 600;
+            font-family: 'Inter'; cursor: pointer; transition: all .3s; text-align: center;
+        }
+        .type-btn.active {
+            border-color: #8b5cf6; color: #fff; background: rgba(139,92,246,.1);
+            box-shadow: 0 0 15px rgba(139,92,246,.2);
+        }
+        .plan-choice { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .plan-card { min-height: 132px; padding: 18px; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; background: rgba(255,255,255,.03); color: #707080; cursor: pointer; text-align: left; transition: all .3s; }
+        .plan-card strong, .plan-card span { display: block; }
+        .plan-card strong { color: #e0e0e0; font-size: 1rem; margin-bottom: 9px; }
+        .plan-card span { font-size: .75rem; line-height: 1.6; }
+        .plan-card.selected { border-color: #8b5cf6; background: rgba(139,92,246,.14); box-shadow: 0 0 20px rgba(139,92,246,.18); }
+        .plan-card.selected strong { color: #fff; }
+        .plan-card.selected span { color: #b9a4f7; }
+
+        /* Password strength */
+        .pass-strength { margin-top: 8px; }
+        .strength-bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,.05); overflow: hidden; }
+        .strength-fill { height: 100%; border-radius: 2px; transition: all .4s; width: 0%; }
+        .strength-fill.weak { width: 33%; background: #ef4444; }
+        .strength-fill.medium { width: 66%; background: #f59e0b; }
+        .strength-fill.strong { width: 100%; background: #22c55e; }
+        .strength-label { font-size: .7rem; margin-top: 4px; color: #505060; }
+
+        /* Review section */
+        .review-data { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .review-row {
+            display: flex; justify-content: space-between; padding: 12px 16px;
+            background: rgba(255,255,255,.03); border-radius: 10px; border: 1px solid rgba(255,255,255,.05);
+        }
+        .review-row .label { font-size: .8rem; color: #606070; }
+        .review-row .value { font-size: .85rem; color: #e0e0e0; font-weight: 500; }
+
+        .checkbox-label {
+            display: flex; align-items: flex-start; gap: 10px; font-size: .8rem; color: #707080; cursor: pointer;
+            margin-bottom: 20px; line-height: 1.5;
+        }
+        .checkbox-label input[type="checkbox"] {
+            appearance: none; min-width: 20px; height: 20px; border: 1.5px solid rgba(255,255,255,.15);
+            border-radius: 4px; background: rgba(255,255,255,.03); cursor: pointer; transition: all .3s;
+            margin-top: 2px; display: flex; align-items: center; justify-content: center;
+        }
+        .checkbox-label input[type="checkbox"]:checked { background: #8b5cf6; border-color: #8b5cf6; }
+        .checkbox-label input[type="checkbox"]::after { content: '✓'; color: #fff; font-size: .7rem; font-weight: 900; display: none; }
+        .checkbox-label input[type="checkbox"]:checked::after { display: block; }
+        .checkbox-label a { color: #8b5cf6; }
+
+        /* Buttons */
+        .btn-row { display: flex; gap: 12px; margin-top: 8px; }
+        .btn-back {
+            padding: 14px 24px; border: 1px solid rgba(255,255,255,.1); border-radius: 12px;
+            background: transparent; color: #808090; font-weight: 600; font-family: 'Inter';
+            cursor: pointer; transition: all .3s; font-size: .9rem;
+        }
+        .btn-back:hover { border-color: rgba(255,255,255,.2); color: #e0e0e0; }
+        .btn-next {
+            flex: 1; padding: 14px; border: none; border-radius: 12px;
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            color: #fff; font-weight: 700; font-size: .95rem; font-family: 'Inter';
+            cursor: pointer; transition: all .3s; position: relative; overflow: hidden;
+        }
+        .btn-next:hover { box-shadow: 0 0 30px rgba(139,92,246,.4); transform: translateY(-2px); }
+        .btn-next::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,.15), transparent);
+            transform: translateX(-100%); transition: transform .5s;
+        }
+        .btn-next:hover::after { transform: translateX(100%); }
+        .btn-next.loading { pointer-events: none; opacity: .7; }
+
+        .login-link { text-align: center; margin-top: 24px; font-size: .85rem; color: #606070; }
+        .login-link a { color: #8b5cf6; font-weight: 600; transition: color .3s; }
+        .login-link a:hover { color: #00f0ff; }
+
+        .input-wrapper.error { border-color: #ef4444; }
+        .error-msg { font-size: .7rem; color: #ef4444; margin-top: 4px; display: none; }
+        .error-msg.show { display: block; }
+        .approval-modal { position: fixed; inset: 0; z-index: 30; display: none; place-items: center; padding: 20px; background: rgba(5,5,12,.78); }
+        .approval-modal.open { display: grid; }
+        .approval-card { width: min(560px, 100%); padding: 34px; border: 1px solid rgba(139,92,246,.35); border-radius: 22px; background: #12121c; box-shadow: 0 24px 90px rgba(0,0,0,.55); text-align: center; }
+        .approval-icon { width: 56px; height: 56px; margin: 0 auto 18px; display: grid; place-items: center; border: 2px solid #f59e0b; border-radius: 50%; color: #fbbf24; font-size: 1.5rem; }
+        .approval-card h2 { color: #fff; font-size: 1.35rem; margin-bottom: 16px; }
+        .approval-card p { color: #a4a1b4; line-height: 1.7; margin-bottom: 22px; }
+        .approval-card strong { color: #fbbf24; }
+        .approval-actions { display: flex; gap: 10px; }
+        .approval-actions a, .approval-actions button { flex: 1; padding: 13px; border-radius: 12px; font: 700 .85rem 'Inter'; cursor: pointer; }
+        .approval-actions a { color: #fff; background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+        .approval-actions button { color: #b9b5c9; border: 1px solid rgba(255,255,255,.12); background: transparent; }
+
+        @media (max-width: 480px) {
+            .register-card { padding: 32px 20px; }
+            .logo { font-size: 1.4rem; }
+            .form-row-2 { grid-template-columns: 1fr; }
+            .step-line { width: 30px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-effects"></div>
+    <div class="bg-grid"></div>
+    <canvas id="particles"></canvas>
+    <div class="float-shape"></div>
+    <div class="float-shape"></div>
+
+    <div class="register-wrapper">
+        <a href="index.html" class="back-link">← Voltar ao início</a>
+
+        <div class="register-card">
+            <div class="logo">CYBER<span>PAY</span></div>
+            <p class="reg-title">Criar sua conta</p>
+
+            <!-- Progress Bar -->
+            <div class="progress-bar">
+                <div class="step-wrapper">
+                    <div class="step-circle active" id="stepCircle1">1</div>
+                    <div class="step-label active" id="stepLabel1">Dados</div>
+                </div>
+                <div class="step-line" id="stepLine1"></div>
+                <div class="step-wrapper">
+                    <div class="step-circle" id="stepCircle2">2</div>
+                    <div class="step-label" id="stepLabel2">Segurança</div>
+                </div>
+                <div class="step-line" id="stepLine2"></div>
+                <div class="step-wrapper">
+                    <div class="step-circle" id="stepCircle3">3</div>
+                    <div class="step-label" id="stepLabel3">Confirmar</div>
+                </div>
+            </div>
+
+            <!-- STEP 1: Dados pessoais -->
+            <div class="step-content active" id="step1">
+                <div class="plan-choice" aria-label="Escolha o plano">
+                    <button class="plan-card selected" type="button" data-plan="Vendedor Pro" onclick="selectPlan(this)">
+                        <strong data-plan-label>Vendedor Pro</strong><span data-plan-description>Taxa de 3% + R$ 1,50 por Pix.<br>Ideal para vender e escalar.</span>
+                    </button>
+                    <button class="plan-card" type="button" data-plan="Ghost" onclick="selectPlan(this)">
+                        <strong data-plan-label>Ghost</strong><span data-plan-description>Taxa de 8% + R$ 1,00 por Pix.<br>Consulte as condições do plano.</span>
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Nome completo</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="regName" placeholder="Seu nome completo">
+                    </div>
+                    <div class="error-msg" id="nameError">Nome é obrigatório</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">E-mail</label>
+                    <div class="input-wrapper">
+                        <input type="email" id="regEmail" placeholder="seu@email.com">
+                    </div>
+                    <div class="error-msg" id="regEmailError">E-mail inválido</div>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label class="form-label">CPF</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="regDoc" placeholder="000.000.000-00" maxlength="14" oninput="maskCpf(this)">
+                        </div>
+                        <div class="error-msg" id="docError">Documento inválido</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">WhatsApp</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="regPhone" placeholder="(00) 00000-0000" maxlength="15" oninput="maskPhone(this)">
+                        </div>
+                        <div class="error-msg" id="phoneError">Telefone inválido</div>
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn-next" onclick="nextStep(1)">Continuar →</button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Segurança -->
+            <div class="step-content" id="step2">
+                <div class="form-group">
+                    <label class="form-label">Senha</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="regPass" placeholder="Mínimo 10 caracteres" minlength="10" oninput="checkStrength()">
+                        <button type="button" class="input-icon" onclick="toggleField('regPass')">👁</button>
+                    </div>
+                    <div class="pass-strength">
+                        <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+                        <div class="strength-label" id="strengthLabel"></div>
+                    </div>
+                    <div class="error-msg" id="passError">Senha deve ter no mínimo 10 caracteres</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Confirmar senha</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="regPassConfirm" placeholder="Repita a senha">
+                        <button type="button" class="input-icon" onclick="toggleField('regPassConfirm')">👁</button>
+                    </div>
+                    <div class="error-msg" id="passConfirmError">As senhas não coincidem</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Senha de transferência e saque</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="regWithdrawPass" placeholder="Mínimo 6 caracteres">
+                        <button type="button" class="input-icon" onclick="toggleField('regWithdrawPass')">👁</button>
+                    </div>
+                    <div class="error-msg" id="withdrawPassError">Senha de saque deve ter no mínimo 6 caracteres</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Confirmar senha de transferência</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="regWithdrawPassConfirm" placeholder="Repita a senha de saque">
+                        <button type="button" class="input-icon" onclick="toggleField('regWithdrawPassConfirm')">👁</button>
+                    </div>
+                    <div class="error-msg" id="withdrawPassConfirmError">As senhas de saque não coincidem</div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn-back" onclick="prevStep(2)">← Voltar</button>
+                    <button class="btn-next" onclick="nextStep(2)">Continuar →</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Confirmação -->
+            <div class="step-content" id="step3">
+                <div class="review-data" id="reviewData">
+                    <!-- Populated by JS -->
+                </div>
+
+                <label class="checkbox-label">
+                    <input type="checkbox" id="acceptTerms">
+                    Li e aceito os <a href="#">Termos de Uso</a> e a <a href="#">Política de Privacidade</a> da CyberPay.
+                </label>
+
+                <div class="error-msg" id="termsError">Você precisa aceitar os termos</div>
+
+                <div class="btn-row">
+                    <button class="btn-back" onclick="prevStep(3)">← Voltar</button>
+                    <button class="btn-next" id="createBtn" onclick="createAccount()">🚀 Criar Conta</button>
+                </div>
+            </div>
+
+            <div class="login-link">
+                Já tem conta? <a href="login.html">Fazer login</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="approval-modal" id="approvalModal" role="dialog" aria-modal="true" aria-labelledby="approvalTitle">
+        <div class="approval-card">
+            <div class="approval-icon">○</div>
+            <h2 id="approvalTitle">Cadastro enviado!</h2>
+            <p><strong>Aguardando aprovação de um administrador.</strong><br>Assim que for aprovado, você poderá entrar automaticamente na sua conta.</p>
+            <p>Precisa agilizar? Envie uma mensagem para o suporte.</p>
+            <div class="approval-actions">
+                <button type="button" onclick="closeApprovalModal()">Fechar</button>
+                <a class="support-whatsapp" href="https://wa.me/5511925988460?text=Olá%2C%20acabei%20de%20criar%20minha%20conta%20na%20CyberPay%20e%20gostaria%20de%20pedir%20informações%20sobre%20a%20aprovação." target="_blank" rel="noopener noreferrer">Enviar mensagem no WhatsApp · (11) 92598-8460</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="client-security.js"></script>
+    <script>
+        const { escapeHTML } = window.CyberPaySecurity;
+        // Particles
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        let pts = [];
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        resize(); window.addEventListener('resize', resize);
+        class P {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random()*canvas.width; this.y = Math.random()*canvas.height;
+                this.s = Math.random()*1.5+.5; this.sx = (Math.random()-.5)*.3; this.sy = (Math.random()-.5)*.3;
+                this.o = Math.random()*.4+.1; this.c = Math.random()>.5?'#8b5cf6':'#00f0ff';
+            }
+            update() { this.x+=this.sx; this.y+=this.sy; if(this.x<0||this.x>canvas.width||this.y<0||this.y>canvas.height)this.reset(); }
+            draw() { ctx.beginPath(); ctx.arc(this.x,this.y,this.s,0,Math.PI*2); ctx.fillStyle=this.c; ctx.globalAlpha=this.o; ctx.fill(); ctx.globalAlpha=1; }
+        }
+        for(let i=0;i<40;i++) pts.push(new P());
+        function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); pts.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(animate); }
+        animate();
+
+        let currentStep = 1;
+        let selectedPlan = 'Vendedor Pro';
+
+        function selectPlan(btn) {
+            selectedPlan = btn.dataset.plan;
+            document.querySelectorAll('.plan-card').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('active');
+            btn.classList.add('selected');
+        }
+
+        function maskCpf(el) {
+            let v = el.value.replace(/\D/g, '');
+            v = v.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            el.value = v;
+        }
+
+        function maskPhone(el) {
+            let v = el.value.replace(/\D/g, '');
+            v = v.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d{1,4})$/, '$1-$2');
+            el.value = v;
+        }
+
+        function toggleField(id) {
+            const f = document.getElementById(id);
+            f.type = f.type === 'password' ? 'text' : 'password';
+        }
+
+        function checkStrength() {
+            const pass = document.getElementById('regPass').value;
+            const fill = document.getElementById('strengthFill');
+            const label = document.getElementById('strengthLabel');
+            fill.className = 'strength-fill';
+            if (pass.length === 0) { label.textContent = ''; return; }
+            let score = 0;
+            if (pass.length >= 10) score++;
+            if (/[A-Z]/.test(pass)) score++;
+            if (/[0-9]/.test(pass)) score++;
+            if (/[^A-Za-z0-9]/.test(pass)) score++;
+            if (score <= 1) { fill.classList.add('weak'); label.textContent = '🔴 Fraca'; label.style.color = '#ef4444'; }
+            else if (score <= 2) { fill.classList.add('medium'); label.textContent = '🟡 Média'; label.style.color = '#f59e0b'; }
+            else { fill.classList.add('strong'); label.textContent = '🟢 Forte'; label.style.color = '#22c55e'; }
+        }
+
+        function updateProgress(step) {
+            for (let i = 1; i <= 3; i++) {
+                const circle = document.getElementById('stepCircle' + i);
+                const label = document.getElementById('stepLabel' + i);
+                circle.className = 'step-circle';
+                label.className = 'step-label';
+                if (i < step) { circle.classList.add('done'); circle.textContent = '✓'; label.classList.add('done'); }
+                else if (i === step) { circle.classList.add('active'); label.classList.add('active'); }
+            }
+            if (document.getElementById('stepLine1')) {
+                document.getElementById('stepLine1').classList.toggle('done', step > 1);
+            }
+            if (document.getElementById('stepLine2')) {
+                document.getElementById('stepLine2').classList.toggle('done', step > 2);
+            }
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error-msg').forEach(e => e.classList.remove('show'));
+            document.querySelectorAll('.input-wrapper').forEach(w => w.classList.remove('error'));
+        }
+
+        function showError(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('show');
+        }
+
+        function nextStep(from) {
+            clearErrors();
+            let valid = true;
+
+            if (from === 1) {
+                const name = document.getElementById('regName').value.trim();
+                const email = document.getElementById('regEmail').value.trim();
+                const doc = document.getElementById('regDoc').value.trim();
+                const phone = document.getElementById('regPhone').value.trim();
+
+                if (!name) { showError('nameError'); valid = false; }
+                if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('regEmailError'); valid = false; }
+                if (!doc || doc.replace(/\D/g, '').length !== 11) { showError('docError'); valid = false; }
+                if (!phone || phone.replace(/\D/g,'').length < 10) { showError('phoneError'); valid = false; }
+            }
+
+            if (from === 2) {
+                const pass = document.getElementById('regPass').value;
+                const confirm = document.getElementById('regPassConfirm').value;
+                const withdrawPass = document.getElementById('regWithdrawPass').value;
+                const withdrawConfirm = document.getElementById('regWithdrawPassConfirm').value;
+                if (!pass || pass.length < 10) { showError('passError'); valid = false; }
+                if (pass !== confirm) { showError('passConfirmError'); valid = false; }
+                if (!withdrawPass || withdrawPass.length < 6) { showError('withdrawPassError'); valid = false; }
+                if (withdrawPass !== withdrawConfirm) { showError('withdrawPassConfirmError'); valid = false; }
+            }
+
+            if (!valid) return;
+
+            document.getElementById('step' + from).classList.remove('active');
+            currentStep = from + 1;
+            document.getElementById('step' + currentStep).classList.add('active');
+            updateProgress(currentStep);
+
+            if (currentStep === 3) populateReview();
+        }
+
+        function prevStep(from) {
+            document.getElementById('step' + from).classList.remove('active');
+            currentStep = from - 1;
+            document.getElementById('step' + currentStep).classList.add('active');
+            updateProgress(currentStep);
+        }
+
+        function populateReview() {
+            const data = [
+                { label: 'Nome', value: document.getElementById('regName').value },
+                { label: 'E-mail', value: document.getElementById('regEmail').value },
+                { label: 'Plano', value: selectedPlan },
+                { label: 'CPF', value: document.getElementById('regDoc').value },
+                { label: 'Telefone', value: document.getElementById('regPhone').value },
+            ];
+            const container = document.getElementById('reviewData');
+            container.innerHTML = data.map(d => `
+                <div class="review-row">
+                    <span class="label">${d.label}</span>
+                    <span class="value">${escapeHTML(d.value)}</span>
+                </div>
+            `).join('');
+        }
+
+        async function createAccount() {
+            clearErrors();
+            if (!document.getElementById('acceptTerms').checked) {
+                showError('termsError');
+                return;
+            }
+            const btn = document.getElementById('createBtn');
+            const body = {
+                name: document.getElementById('regName').value.trim(),
+                email: document.getElementById('regEmail').value.trim(),
+                cpf: document.getElementById('regDoc').value.replace(/\D/g, ''),
+                phone: document.getElementById('regPhone').value.trim(),
+                password: document.getElementById('regPass').value,
+                withdrawalPassword: document.getElementById('regWithdrawPass').value,
+                plan: selectedPlan
+            };
+            btn.classList.add('loading');
+            btn.disabled = true;
+            btn.textContent = 'Criando conta...';
+            try {
+                const response = await fetch('/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    alert(payload.error || 'Não foi possível criar a conta');
+                    return;
+                }
+                localStorage.setItem('cyberpayAccount', JSON.stringify({ ...payload.user, plan: selectedPlan }));
+                document.getElementById('approvalModal').classList.add('open');
+            } catch {
+                alert('Falha de conexão. Confira sua internet e tente novamente.');
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                btn.textContent = '🚀 Criar Conta';
+            }
+        }
+
+        function closeApprovalModal() {
+            document.getElementById('approvalModal').classList.remove('open');
+        }
+
+        (async () => {
+            try {
+                const response = await fetch('/api/public/config');
+                if (!response.ok) return;
+                const { plans, support } = await response.json();
+                const money = value => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value) || 0);
+                if (Array.isArray(plans) && plans.length) {
+                    const choice = document.querySelector('.plan-choice');
+                    const preferred = plans.some(plan => plan.name === selectedPlan) ? selectedPlan : (plans.some(plan => plan.name === 'Vendedor Pro') ? 'Vendedor Pro' : plans[0].name);
+                    choice.replaceChildren();
+                    plans.forEach(plan => {
+                        const card = document.createElement('button');
+                        card.type = 'button';
+                        card.className = `plan-card${plan.name === preferred ? ' selected' : ''}`;
+                        card.dataset.plan = plan.name;
+                        const name = document.createElement('strong');
+                        name.textContent = plan.name;
+                        const details = document.createElement('span');
+                        details.textContent = `Taxa de ${Number(plan.percent).toLocaleString('pt-BR')}% + ${money(plan.fixed)} por Pix. Tarifa de saque: ${money(plan.withdrawalFee)}.`;
+                        card.append(name, details);
+                        card.addEventListener('click', () => selectPlan(card));
+                        choice.append(card);
+                    });
+                    selectedPlan = preferred;
+                }
+                if (support?.whatsapp) document.querySelectorAll('.support-whatsapp').forEach(link => { link.href = support.whatsapp; });
+            } catch { /* Registration stays available if the public config endpoint is temporarily unavailable. */ }
+        })();
+    </script>
+</body>
+</html>
